@@ -8,9 +8,9 @@
 #ifndef SIGMOIDFUNCTION_H_
 #define SIGMOIDFUNCTION_H_
 
-#include "Function.h"
+#include "ActivationFunction.h"
 
-class SigmoidFunction: public Function
+class SigmoidFunction: public ActivationFunction
 {
   public:
     Eigen::MatrixXd getFunc(const Eigen::MatrixXd& X);

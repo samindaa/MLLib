@@ -8,9 +8,9 @@
 #ifndef COSTFUNCTION_H_
 #define COSTFUNCTION_H_
 
-#include "Eigen/Dense"
+#include "EigenFunction.h"
 
-class CostFunction
+class CostFunction : public EigenFunction
 {
   public:
     virtual ~CostFunction()
@@ -18,10 +18,8 @@ class CostFunction
     }
 
     virtual Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) =0;
-    virtual Eigen::VectorXd getGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y) =0;
-    virtual double getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y) =0;
+    virtual double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad) =0;
     virtual double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
         const Eigen::MatrixXd& Y) =0;
 

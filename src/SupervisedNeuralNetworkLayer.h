@@ -23,7 +23,7 @@ class SupervisedNeuralNetworkLayer
     Eigen::MatrixXd Delta;
     Eigen::MatrixXd Z; //<< Activation
     Eigen::MatrixXd A; //<< Input to the layer
-    Function* function;
+    ActivationFunction* function;
 
     enum FunctionType
     {

@@ -6,7 +6,6 @@
  */
 
 #include "SoftmaxCostFunction.h"
-#include "OpenMpParallel.h"
 #include <iostream>
 
 SoftmaxCostFunction::SoftmaxCostFunction(const double& LAMBDA) :
@@ -28,41 +27,36 @@ Eigen::VectorXd SoftmaxCostFunction::configure(const Eigen::MatrixXd& X, const E
   return theta;
 }
 
-Eigen::VectorXd SoftmaxCostFunction::getGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+double SoftmaxCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
 {
-  Eigen::VectorXd theta_tmp = theta;
-  Eigen::Map<Eigen::MatrixXd> Theta(theta_tmp.data(), X.cols(), Y.cols()); // reshape
-  Eigen::MatrixXd Mat = X * Theta;
+  Eigen::MatrixXd Mat = softmax->getFunc(getMat(theta, X, Y));
 
-  Eigen::MatrixXd Grad = -(X.transpose() * (Y - softmax->getFunc(Mat)));
-  Eigen::VectorXd thetaGrad = Eigen::Map<Eigen::VectorXd>(Grad.data(), Grad.cols() * Grad.rows())
-      + (theta * LAMBDA);
-  return thetaGrad;
+  Eigen::MatrixXd Grad = -(X.transpose() * (Y - Mat));
+  grad = Eigen::Map<Eigen::VectorXd>(Grad.data(), Grad.cols() * Grad.rows()) + (theta * LAMBDA);
+
+  return -((Y.array() * Mat.array().log()).sum()) + (theta.array().square().sum()) * LAMBDA * 0.5f;
 }
 
-double SoftmaxCostFunction::getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+Eigen::MatrixXd SoftmaxCostFunction::getMat(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
     const Eigen::MatrixXd& Y)
 {
   Eigen::VectorXd theta_tmp = theta;
   Eigen::Map<Eigen::MatrixXd> Theta(theta_tmp.data(), X.cols(), Y.cols()); // reshape
-  Eigen::MatrixXd Mat = X * Theta;
-
-  return -((Y.array() * softmax->getFunc(Mat).array().log()).sum())
-      + (theta.array().square().sum()) * LAMBDA * 0.5f;
+  return X * Theta;
 }
 
 double SoftmaxCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
     const Eigen::MatrixXd& Y)
 {
-  Eigen::VectorXd theta_tmp = theta;
-  Eigen::MatrixXd Theta(Eigen::Map<Eigen::MatrixXd>(theta_tmp.data(), X.cols(), Y.cols())); // reshape
+  /*Eigen::VectorXd theta_tmp = theta;
+   Eigen::MatrixXd Theta(Eigen::Map<Eigen::MatrixXd>(theta_tmp.data(), X.cols(), Y.cols())); // reshape*/
 
-  Eigen::MatrixXd Mat = X * Theta;
+  Eigen::MatrixXd Mat = getMat(theta, X, Y);
   Eigen::MatrixXf::Index maxIndex;
   int correct = 0;
   int incorrect = 0;
-  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+//  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
 #pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
   for (int i = 0; i < X.rows(); ++i)
   {
@@ -72,9 +66,9 @@ double SoftmaxCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::
     else
     {
       ++incorrect;
-      //std::cout << i << std::endl;
-      //std::cout << "pred: " << Mat.row(i) << std::endl;
-      //std::cout << "true: " << Y.row(i) << std::endl;
+      std::cout << i << std::endl;
+      std::cout << "pred: " << Mat.row(i) << std::endl;
+      std::cout << "true: " << Y.row(i) << std::endl;
     }
   }
 

@@ -8,9 +8,9 @@
 #ifndef SOFTMAXFUNCTION_H_
 #define SOFTMAXFUNCTION_H_
 
-#include "Function.h"
+#include "ActivationFunction.h"
 
-class SoftmaxFunction: public Function
+class SoftmaxFunction: public ActivationFunction
 {
   public:
     Eigen::MatrixXd getFunc(const Eigen::MatrixXd& X);

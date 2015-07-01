@@ -27,14 +27,18 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
   std::string negg3 = base + "event_data.data-walk-right.txt";
   std::string negg4 = base + "event_data.data-walk-backward.txt";
 
+  std::string negg5 = base + "event_data.data-marching.txt";
+  std::string negg6 = base + "event_data.data-rotate-ccw.txt";
+  std::string negg7 = base + "event_data.data-rotate-cw.txt";
+
   std::vector<std::vector<std::string>> targets;
   std::vector<std::vector<Meta>> metas;
 
   // At most 4
-  std::vector<Meta> data1;
-  std::vector<Meta> data2;
-  std::vector<Meta> data3;
-  std::vector<Meta> data4;
+  //std::vector<Meta> data1;
+  //std::vector<Meta> data2;
+  //std::vector<Meta> data3;
+  //std::vector<Meta> data4;
 
   std::vector<int> trainingSamplesVector;
 
@@ -49,15 +53,15 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
   if (iter->second == "__L1__")
   {
     std::vector<std::string> target1 { true1, true2, true3, true4 };
-    std::vector<std::string> target2 { negg1, negg2, negg3, negg4 };
+    std::vector<std::string> target2 { negg1, negg2, negg3, negg4, negg5, negg6, negg7 };
 
     targets.push_back(target1);
     targets.push_back(target2);
 
-    metas.push_back(data1);
-    metas.push_back(data2);
+    for (size_t i = 0; i < targets.size(); ++i)
+      metas.push_back(std::vector<Meta>());
 
-    trainingSamplesVector.push_back(18);
+    trainingSamplesVector.push_back(20);
     trainingSamplesVector.push_back(30);
   }
   else if (iter->second == "__L2_true__")
@@ -72,37 +76,38 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
     targets.push_back(target3);
     targets.push_back(target4);
 
-    metas.push_back(data1);
-    metas.push_back(data2);
-    metas.push_back(data3);
-    metas.push_back(data4);
+    for (size_t i = 0; i < targets.size(); ++i)
+      metas.push_back(std::vector<Meta>());
 
-    trainingSamplesVector.push_back(3);
-    trainingSamplesVector.push_back(3);
-    trainingSamplesVector.push_back(3);
-    trainingSamplesVector.push_back(3);
+    for (size_t i = 0; i < targets.size(); ++i)
+      trainingSamplesVector.push_back(3);
   }
-  else if (iter->second == "__L2_nn_negg__")
+  else if (iter->second == "__L2_negg__")
   {
     std::vector<std::string> target1 { negg1 };
     std::vector<std::string> target2 { negg2 };
     std::vector<std::string> target3 { negg3 };
     std::vector<std::string> target4 { negg4 };
 
+    std::vector<std::string> target5 { negg5 };
+    std::vector<std::string> target6 { negg6 };
+    std::vector<std::string> target7 { negg7 };
+
     targets.push_back(target1);
     targets.push_back(target2);
     targets.push_back(target3);
     targets.push_back(target4);
 
-    metas.push_back(data1);
-    metas.push_back(data2);
-    metas.push_back(data3);
-    metas.push_back(data4);
+    targets.push_back(target5);
+    targets.push_back(target6);
+    targets.push_back(target7);
 
-    trainingSamplesVector.push_back(12);
-    trainingSamplesVector.push_back(12);
-    trainingSamplesVector.push_back(12);
-    trainingSamplesVector.push_back(12);
+    for (size_t i = 0; i < targets.size(); ++i)
+      metas.push_back(std::vector<Meta>());
+
+    for (size_t i = 0; i < targets.size(); ++i)
+      trainingSamplesVector.push_back(12);
+
   }
   else
   {

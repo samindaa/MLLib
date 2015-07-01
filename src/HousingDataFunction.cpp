@@ -75,7 +75,7 @@ void HousingDataFunction::configure(const ConfigurationDescription* configuratio
   testingX.setZero(TmpData.rows() - 400, TmpData.cols() - 1);
   testingY.setZero(TmpData.rows() - 400, 1);
 
-  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+//  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
 #pragma omp parallel for
   for (int i = 0; i < 400; ++i)
   {
@@ -84,7 +84,7 @@ void HousingDataFunction::configure(const ConfigurationDescription* configuratio
     trainingY(i, 0) = TmpData(rows[i], TmpData.cols() - 1);
   }
 
-  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+//  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
 #pragma omp parallel for
   for (int i = 400; i < TmpData.rows(); ++i)
   {

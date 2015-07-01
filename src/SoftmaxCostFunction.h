@@ -14,7 +14,7 @@
 class SoftmaxCostFunction: public CostFunction
 {
   private:
-    Function* softmax;
+    ActivationFunction* softmax;
     const double& LAMBDA;
 
   public:
@@ -22,11 +22,13 @@ class SoftmaxCostFunction: public CostFunction
     ~SoftmaxCostFunction();
 
     Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    Eigen::VectorXd getGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
-    double getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
     double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+        const Eigen::MatrixXd& Y);
+
+  private:
+    Eigen::MatrixXd getMat(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
         const Eigen::MatrixXd& Y);
 };
 

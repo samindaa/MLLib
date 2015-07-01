@@ -20,17 +20,17 @@ Eigen::MatrixXd& DataFunction::getTrainingX()
   return trainingX;
 }
 
-Eigen::MatrixXd DataFunction::getTestingX()
+Eigen::MatrixXd& DataFunction::getTestingX()
 {
   return testingX;
 }
 
-Eigen::MatrixXd DataFunction::getTrainingY()
+Eigen::MatrixXd& DataFunction::getTrainingY()
 {
   return trainingY;
 }
 
-Eigen::MatrixXd DataFunction::getTestingY()
+Eigen::MatrixXd& DataFunction::getTestingY()
 {
   return testingY;
 }

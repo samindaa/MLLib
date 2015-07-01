@@ -7,12 +7,17 @@
 
 #include "MNISTDataBinaryDigitsFunction.h"
 
+MNISTDataBinaryDigitsFunction::MNISTDataBinaryDigitsFunction(const bool& targetOneOfKCoding) :
+    targetOneOfKCoding(targetOneOfKCoding)
+{
+}
+
 void MNISTDataBinaryDigitsFunction::configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
     const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y)
 {
   int numberOfPolicyRows = 0;
 
-  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+//  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
 #pragma omp parallel for reduction(+:numberOfPolicyRows)
   for (int i = 0; i < tmpY.rows(); ++i)
   {
@@ -22,7 +27,10 @@ void MNISTDataBinaryDigitsFunction::configurePolicy(const Eigen::MatrixXd& tmpX,
 
   std::cout << "numberOfPolicyRows: " << numberOfPolicyRows << std::endl;
   X.setZero(numberOfPolicyRows, tmpX.cols());
-  Y.setZero(numberOfPolicyRows, 1); //<< binary: 0 or 1
+  if (targetOneOfKCoding)
+    Y.setZero(numberOfPolicyRows, 2);
+  else
+    Y.setZero(numberOfPolicyRows, 1); //<< binary: 0 or 1
 
   int rowCounter = 0;
 
@@ -37,7 +45,7 @@ void MNISTDataBinaryDigitsFunction::configurePolicy(const Eigen::MatrixXd& tmpX,
     else if (tmpY(i, 1) == 1)
     {
       X.row(rowCounter) = tmpX.row(i);
-      Y(rowCounter, 0) = tmpY(i, 1);
+      Y(rowCounter, targetOneOfKCoding) = tmpY(i, 1);
       ++rowCounter;
     }
   }

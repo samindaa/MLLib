@@ -15,12 +15,14 @@ double CostFunction::getNumGrad(const Eigen::VectorXd& theta, const Eigen::Matri
   Eigen::VectorXd numGrad = Eigen::VectorXd::Zero(theta.size());
   const double epsilon = 1e-3;
   Eigen::VectorXd e = Eigen::VectorXd::Zero(theta.size());
-  Eigen::VectorXd grad = getGrad(theta, X, Y);
+  Eigen::VectorXd grad, grad_tmp;
+  evaluate(theta, X, Y, grad);
 
   for (int i = 0; i < theta.size(); ++i)
   {
     e(i) = epsilon;
-    numGrad(i) = (getCost(theta + e, X, Y) - getCost(theta - e, X, Y)) / (2.0f * epsilon);
+    numGrad(i) = (evaluate(theta + e, X, Y, grad_tmp) - evaluate(theta - e, X, Y, grad_tmp))
+        / (2.0f * epsilon);
     e(i) = 0;
 
     double error = fabs(double(grad(i)) - numGrad(i));
@@ -57,10 +59,11 @@ double CostFunction::getNumGrad(const Eigen::VectorXd& theta, const Eigen::Matri
 
     T0(j) -= epsilon;
     T1(j) += epsilon;
-    Eigen::VectorXd grad = getGrad(T, X, Y);
-    double cost = getCost(T, X, Y);
+    Eigen::VectorXd grad, grad_tmp;
+    double cost = evaluate(T, X, Y, grad);
 
-    double gradEst = (getCost(T1, X, Y) - getCost(T0, X, Y)) / (2.0f * epsilon);
+    double gradEst = (evaluate(T1, X, Y, grad_tmp) - evaluate(T0, X, Y, grad_tmp))
+        / (2.0f * epsilon);
     double error = fabs(double(grad(j)) - gradEst);
 
     std::cout << std::left << std::setw(5) << i << std::setw(6) << j << std::setw(15) << error

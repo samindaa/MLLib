@@ -27,19 +27,14 @@ Eigen::VectorXd LogisticCostFunction::configure(const Eigen::MatrixXd& X, const 
   return theta;
 }
 
-Eigen::VectorXd LogisticCostFunction::getGrad(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& y)
-{
-  return X.transpose() * (sigmoid->getFunc(X * theta) - y);
-}
-
-double LogisticCostFunction::getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& y)
+double LogisticCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
 {
   Eigen::MatrixXd hx = sigmoid->getFunc(X * theta);
+  grad = X.transpose() * (hx - Y);
   return -( //
-  (y.array() * hx.array().log()) + //
-      ((1.0f - y.array()) * (1.0f - hx.array()).log()) //
+  (Y.array() * hx.array().log()) + //
+      ((1.0f - Y.array()) * (1.0f - hx.array()).log()) //
   ).sum();
 }
 

@@ -12,7 +12,6 @@
 #include "CostFunction.h"
 #include "SigmoidFunction.h"
 #include "SupervisedNeuralNetworkLayer.h"
-#include "OpenMpParallel.h"
 
 class SupervisedNeuralNetworkCostFunction: public CostFunction
 {
@@ -28,10 +27,9 @@ class SupervisedNeuralNetworkCostFunction: public CostFunction
     ~SupervisedNeuralNetworkCostFunction();
 
     Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    Eigen::VectorXd getGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
-    double getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
+        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
+
     double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
         const Eigen::MatrixXd& Y);
 

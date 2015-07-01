@@ -59,11 +59,15 @@ lbfgsfloatval_t LIBLBFGSOptimizer::evaluate(const lbfgsfloatval_t *x, lbfgsfloat
     const int n, const lbfgsfloatval_t step)
 {
   Eigen::VectorXd theta = Eigen::VectorXd::Map(x, n, 1);
-  Eigen::VectorXd grad = costFunction->getGrad(theta, dataFunction->getTrainingX(),
-      dataFunction->getTrainingY());
-  for (int i = 0; i < theta.size(); ++i)
-    g[i] = grad(i);  //<< fixme: find a better way
-  return costFunction->getCost(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY());
+  Eigen::VectorXd grad;
+  double cost = costFunction->evaluate(theta, dataFunction->getTrainingX(),
+      dataFunction->getTrainingY(), grad);
+
+#pragma omp parallel for
+  for (int i = 0; i < grad.size(); ++i)
+    g[i] = grad(i);
+
+  return cost;
 }
 
 int LIBLBFGSOptimizer::progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t *g,

@@ -131,10 +131,9 @@ void SupervisedNeuralNetworkCostFunction::forwardPass(const Eigen::MatrixXd& X)
 
 }
 
-Eigen::VectorXd SupervisedNeuralNetworkCostFunction::getGrad(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+double SupervisedNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& theta,
+    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
 {
-
   toWeights(theta);
   forwardPass(X);
 
@@ -154,20 +153,13 @@ Eigen::VectorXd SupervisedNeuralNetworkCostFunction::getGrad(const Eigen::Vector
     layers[j]->gradientb = layers[j]->Delta.colwise().sum().transpose();
   }
 
-  Eigen::VectorXd grad(numberOfParameters);
+  grad.resize(numberOfParameters);
   toGradient(grad);
   grad.array() += (theta.array() * LAMBDA);
-  return grad;
-}
-
-double SupervisedNeuralNetworkCostFunction::getCost(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
-{
-  toWeights(theta);
-  forwardPass(X);
 
   return -((Y.array() * layers[layers.size() - 1]->Z.array().log()).sum())
       + (theta.array().square().sum()) * LAMBDA * 0.5f;
+
 }
 
 double SupervisedNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& theta,
@@ -179,8 +171,8 @@ double SupervisedNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& thet
   Eigen::MatrixXf::Index maxIndex;
   int correct = 0;
   int incorrect = 0;
-  omp_set_num_threads(NUMBER_OF_OPM_THREADS);
-#pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
+  //omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+//#pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
   for (int i = 0; i < X.rows(); ++i)
   {
     layers[layers.size() - 1]->Z.row(i).maxCoeff(&maxIndex);

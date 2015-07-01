@@ -30,7 +30,10 @@ void Driver::drive()
       dataFunction->getTrainingY());
 
   costFunction->getNumGrad(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY(), 5);
-  optimizer->optimize(theta, dataFunction, costFunction);
+
+//  return;
+
+  optimizer->optimize(theta, dataFunction, costFunction); //<<fixme
 
   std::cout << "training_accuracy: "
       << costFunction->accuracy(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY())

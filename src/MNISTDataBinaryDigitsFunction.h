@@ -12,7 +12,12 @@
 
 class MNISTDataBinaryDigitsFunction: public MNISTDataFunction
 {
+  private:
+    bool targetOneOfKCoding;
+
   public:
+    MNISTDataBinaryDigitsFunction(const bool& targetOneOfKCoding = false);
+
     void configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
         const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y);
 };

@@ -8,11 +8,10 @@
 #ifndef DATAFUNCTION_H_
 #define DATAFUNCTION_H_
 
-#include "Eigen/Dense"
+#include "EigenFunction.h"
 #include "ConfigurationDescription.h"
-#include "OpenMpParallel.h"
 
-class DataFunction
+class DataFunction: public EigenFunction
 {
   protected:
     Eigen::MatrixXd trainingX;
@@ -32,9 +31,9 @@ class DataFunction
     virtual void configure(const ConfigurationDescription* configuration) =0;
 
     Eigen::MatrixXd& getTrainingX();
-    Eigen::MatrixXd getTestingX();
-    Eigen::MatrixXd getTrainingY();
-    Eigen::MatrixXd getTestingY();
+    Eigen::MatrixXd& getTestingX();
+    Eigen::MatrixXd& getTrainingY();
+    Eigen::MatrixXd& getTestingY();
 
   protected:
     void trainingMeanAndStdd();

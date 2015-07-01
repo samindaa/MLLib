@@ -35,7 +35,7 @@ void MNISTDataFunction::configure(const ConfigurationDescription* configuration)
    std::stringstream ss;
    ss << "training.txt";
    std::ofstream ofs(ss.str().c_str());
-   ofs << tmpTrX.topRows<64>() << std::endl;
+   ofs << tmpTrX.topRows<1>() << std::endl;
    }*/
 
   /*{
