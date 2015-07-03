@@ -72,9 +72,8 @@ void SupervisedNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
   int j = 0;
   for (size_t i = 1; i < layers.size(); ++i)
   {
-    Eigen::VectorXd thetaLayer(
-        Eigen::Map<Eigen::VectorXd>(layers[i]->W.data(),
-            layers[i]->W.cols() * layers[i]->W.rows()));
+    Eigen::VectorXd thetaLayer(Eigen::Map<Eigen::VectorXd>(layers[i]->W.data(), //
+        layers[i]->W.cols() * layers[i]->W.rows()));
 
     theta.segment(j, thetaLayer.size()) = thetaLayer;
     j += thetaLayer.size();
@@ -89,9 +88,8 @@ void SupervisedNeuralNetworkCostFunction::toGradient(Eigen::VectorXd& grad)
   int j = 0;
   for (size_t i = 1; i < layers.size(); ++i)
   {
-    Eigen::VectorXd thetaLayer(
-        Eigen::Map<Eigen::VectorXd>(layers[i]->GradientW.data(),
-            layers[i]->GradientW.cols() * layers[i]->GradientW.rows()));
+    Eigen::VectorXd thetaLayer(Eigen::Map<Eigen::VectorXd>(layers[i]->GradientW.data(), //
+        layers[i]->GradientW.cols() * layers[i]->GradientW.rows()));
 
     grad.segment(j, thetaLayer.size()) = thetaLayer;
     j += thetaLayer.size();

@@ -47,7 +47,7 @@ class DualToneMultiFrequencySignalingDataFunction: public DataFunction
     DualToneMultiFrequencySignalingDataFunction();
     ~DualToneMultiFrequencySignalingDataFunction();
 
-    void configure(const ConfigurationDescription* configuration);
+    void configure(Config* config);
 
   private:
     void makeDTMF(const float& freqLo, const float& freqHi, short* buf, const size_t& bufLen);

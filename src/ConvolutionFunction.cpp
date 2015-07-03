@@ -10,22 +10,21 @@
 ConvolutionFunction::ConvolutionFunction(FilterFunction* filterFunction,
     ActivationFunction* activationFunction) :
     filterFunction(filterFunction), activationFunction(activationFunction), //
-    convolutedFunctions(new ConvolutedFunctions())
+    convolutions(new Convolutions())
 {
 }
 
 ConvolutionFunction::~ConvolutionFunction()
 {
-  for (auto iter = convolutedFunctions->convolutions.begin();
-      iter != convolutedFunctions->convolutions.end(); ++iter)
+  for (auto iter = convolutions->unordered_map.begin(); iter != convolutions->unordered_map.end();
+      ++iter)
   {
     for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
       delete iter2->second;
   }
 }
 
-ConvolutedFunctions* ConvolutionFunction::conv(const Eigen::MatrixXd& X,
-    const Eigen::Vector2i& config)
+Convolutions* ConvolutionFunction::conv(const Eigen::MatrixXd& X, const Eigen::Vector2i& config)
 {
 #pragma omp parallel for
   for (int i = 0; i < X.rows(); ++i)
@@ -43,39 +42,59 @@ ConvolutedFunctions* ConvolutionFunction::conv(const Eigen::MatrixXd& X,
 
       // Do the valid convolution
 
-      const int limitRows = I.rows() - Wj.rows() + 1;
-      const int limitCols = I.cols() - Wj.cols() + 1;
+      //const int limitRows = I.rows() - Wj.rows() + 1;
+      //const int limitCols = I.cols() - Wj.cols() + 1;
 
-      Eigen::MatrixXd X_tmp(limitRows, limitCols);
+      //Eigen::MatrixXd X_tmp(limitRows, limitCols);
+      Eigen::MatrixXd X_tmp;
+      validConv(X_tmp, I, Wj, bj);
 
-      for (int row = 0; row < limitRows; ++row)
-      {
-        for (int col = 0; col < limitCols; ++col)
-        {
-          Eigen::MatrixXd Patch = I.block(row, col, Wj.rows(), Wj.cols());
-          X_tmp(row, col) = Patch.cwiseProduct(Wj).sum() + bj;
-        }
-      }
+      /*for (int row = 0; row < limitRows; ++row)
+       {
+       for (int col = 0; col < limitCols; ++col)
+       {
+       Eigen::MatrixXd Patch = I.block(row, col, Wj.rows(), Wj.cols());
+       X_tmp(row, col) = Patch.cwiseProduct(Wj).sum() + bj;
+       }
+       }*/
 
-      ConvolutedFunction* convolutedFunction = nullptr;
+      Convolution* convolution = nullptr;
 
 #pragma omp critical
       {
-        auto iter = convolutedFunctions->convolutions[i].find(j);
-        if (iter != convolutedFunctions->convolutions[i].end())
-          convolutedFunction = iter->second;
+        auto iter = convolutions->unordered_map[i].find(j);
+        if (iter != convolutions->unordered_map[i].end())
+          convolution = iter->second;
         else
         {
-          convolutedFunction = new ConvolutedFunction;
-          convolutedFunctions->convolutions[i].insert(std::make_pair(j, convolutedFunction));
+          convolution = new Convolution;
+          convolutions->unordered_map[i].insert(std::make_pair(j, convolution));
         }
       }
 
-      convolutedFunction->X = activationFunction->getFunc(X_tmp);
+      convolution->X = activationFunction->getFunc(X_tmp);
 
     }
   }
 
-  return convolutedFunctions;
+  return convolutions;
+}
+
+void ConvolutionFunction::validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd& I,
+    const Eigen::MatrixXd& W, const double& b)
+{
+  const int limitRows = I.rows() - W.rows() + 1;
+  const int limitCols = I.cols() - W.cols() + 1;
+
+  Conv.setZero(limitRows, limitCols);
+
+  for (int row = 0; row < limitRows; ++row)
+  {
+    for (int col = 0; col < limitCols; ++col)
+    {
+      Eigen::MatrixXd Patch = I.block(row, col, W.rows(), W.cols());
+      Conv(row, col) = Patch.cwiseProduct(W).sum() + b;
+    }
+  }
 }
 

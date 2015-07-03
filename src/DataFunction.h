@@ -9,7 +9,7 @@
 #define DATAFUNCTION_H_
 
 #include "EigenFunction.h"
-#include "ConfigurationDescription.h"
+#include "Config.h"
 
 class DataFunction: public EigenFunction
 {
@@ -28,7 +28,7 @@ class DataFunction: public EigenFunction
     DataFunction();
     virtual ~DataFunction();
 
-    virtual void configure(const ConfigurationDescription* configuration) =0;
+    virtual void configure(Config* config) =0;
 
     Eigen::MatrixXd& getTrainingX();
     Eigen::MatrixXd& getTestingX();

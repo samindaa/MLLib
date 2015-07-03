@@ -19,18 +19,12 @@
 // [OMP]
 #include <omp.h>
 
-void HousingDataFunction::configure(const ConfigurationDescription* configuration)
+void HousingDataFunction::configure(Config* config)
 {
   Eigen::MatrixXd TmpData;
   //<< housing dataset
-  auto iter = configuration->config.find("housing.data");
-  if (iter == configuration->config.end())
-  {
-    std::cerr << "housing.data: missing" << std::endl;
-    assert(false);
-  }
-
-  std::ifstream in(iter->second.c_str());
+  const std::string housingstr = config->getValue("housing.data", std::string("."));
+  std::ifstream in(housingstr.c_str());
   if (in.is_open())
   {
     std::string str;
@@ -51,7 +45,7 @@ void HousingDataFunction::configure(const ConfigurationDescription* configuratio
   }
   else
   {
-    std::cerr << "file: " << iter->second << " failed" << std::endl;
+    std::cerr << "file: " << housingstr << " failed" << std::endl;
     assert(false);
   }
 

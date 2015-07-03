@@ -43,6 +43,7 @@ void DataFunction::trainingMeanAndStdd()
 
 void DataFunction::datasetsMeanNormalize(const double& stdd_offset)
 {
+  std::cout << "meanNormalize: " << std::endl;
   // Mean normalize (x - mean) ./ stdd
   trainingX.rowwise() -= mean.transpose();
   trainingX *= (stdd.array() + stdd_offset).inverse().matrix().asDiagonal();
@@ -54,6 +55,7 @@ void DataFunction::datasetsMeanNormalize(const double& stdd_offset)
 
 void DataFunction::datasetsSetBias()
 {
+  std::cout << "setBias: " << std::endl;
   // add the bias term
   trainingX.conservativeResize(Eigen::NoChange, trainingX.cols() + 1);
   trainingX.col(trainingX.cols() - 1) = Eigen::VectorXd::Ones(trainingX.rows());

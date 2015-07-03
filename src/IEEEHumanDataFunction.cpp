@@ -11,7 +11,7 @@
 #include <cstring>
 #include <algorithm>
 
-void IEEEHumanDataFunction::configure(const ConfigurationDescription* configuration)
+void IEEEHumanDataFunction::configure(Config* config)
 {
   srand(0);
 
@@ -42,15 +42,9 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
 
   std::vector<int> trainingSamplesVector;
 
-  ConfigurationDescription::Config::const_iterator iter = configuration->config.find("exp");
+  const std::string mode = config->getValue("exp", std::string("[]"));
 
-  if (iter == configuration->config.end())
-  {
-    std::cerr << "Configuration is not set" << std::endl;
-    exit(EXIT_FAILURE);
-  }
-
-  if (iter->second == "__L1__")
+  if (mode == "__L1__")
   {
     std::vector<std::string> target1 { true1, true2, true3, true4 };
     std::vector<std::string> target2 { negg1, negg2, negg3, negg4, negg5, negg6, negg7 };
@@ -64,7 +58,7 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
     trainingSamplesVector.push_back(20);
     trainingSamplesVector.push_back(30);
   }
-  else if (iter->second == "__L2_true__")
+  else if (mode == "__L2_true__")
   {
     std::vector<std::string> target1 { true1 };
     std::vector<std::string> target2 { true2 };
@@ -82,7 +76,7 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
     for (size_t i = 0; i < targets.size(); ++i)
       trainingSamplesVector.push_back(3);
   }
-  else if (iter->second == "__L2_negg__")
+  else if (mode == "__L2_negg__")
   {
     std::vector<std::string> target1 { negg1 };
     std::vector<std::string> target2 { negg2 };
@@ -111,7 +105,7 @@ void IEEEHumanDataFunction::configure(const ConfigurationDescription* configurat
   }
   else
   {
-    std::cerr << "Option: " << iter->second << " is not found!" << std::endl;
+    std::cerr << "Option: " << mode << " is not found!" << std::endl;
     exit(EXIT_FAILURE);
   }
 

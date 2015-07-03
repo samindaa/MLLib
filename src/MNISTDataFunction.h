@@ -10,16 +10,15 @@
 
 #include "DataFunction.h"
 
+#define trainImagesKeyMnist  "train-images-idx3-ubyte"
+#define trainLabelsKeyMnist  "train-labels-idx1-ubyte"
+#define testImagesKeyMnist   "t10k-images-idx3-ubyte"
+#define testLabelsKeyMnist   "t10k-labels-idx1-ubyte"
+
 class MNISTDataFunction: public DataFunction
 {
   public:
-    const std::string trainImagesKey { "train-images-idx3-ubyte" };
-    const std::string trainLabelsKey { "train-labels-idx1-ubyte" };
-    const std::string testImagesKey { "t10k-images-idx3-ubyte" };
-    const std::string testLabelsKey { "t10k-labels-idx1-ubyte" };
-
-  public:
-    void configure(const ConfigurationDescription* configuration);
+    void configure(Config* config);
 
   protected:
     virtual void configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
@@ -27,7 +26,7 @@ class MNISTDataFunction: public DataFunction
 
   private:
     void imagesLabelsLoad(const std::string& imagesfilename, const std::string& labelsfilename,
-        Eigen::MatrixXd& images, Eigen::MatrixXd& labels);
+        Eigen::MatrixXd& images, Eigen::MatrixXd& labels, const bool& debugMode);
 };
 
 #endif /* MNISTDATAFUNCTION_H_ */

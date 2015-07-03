@@ -34,8 +34,7 @@ DualToneMultiFrequencySignalingDataFunction::~DualToneMultiFrequencySignalingDat
   dtmfDataVector.clear();
 }
 
-void DualToneMultiFrequencySignalingDataFunction::configure(
-    const ConfigurationDescription* configuration)
+void DualToneMultiFrequencySignalingDataFunction::configure(Config* config)
 {
   asoundLib->configure();
 

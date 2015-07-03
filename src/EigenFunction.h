@@ -10,6 +10,7 @@
 
 #include <omp.h>
 #include "Eigen/Dense"
+#include "unsupported/Eigen/KroneckerProduct"
 
 class EigenFunction
 {

@@ -12,10 +12,9 @@
 #include <iostream>
 #include <fstream>
 
-Driver::Driver(ConfigurationDescription* configuration, DataFunction* dataFunction,
-    CostFunction* costFunction, Optimizer* optimizer) :
-    configuration(configuration), dataFunction(dataFunction), costFunction(costFunction), //
-    optimizer(optimizer)
+Driver::Driver(Config* config, DataFunction* dataFunction, CostFunction* costFunction,
+    Optimizer* optimizer) :
+    config(config), dataFunction(dataFunction), costFunction(costFunction), optimizer(optimizer)
 {
 }
 
@@ -25,7 +24,7 @@ Driver::~Driver()
 
 void Driver::drive()
 {
-  dataFunction->configure(configuration);
+  dataFunction->configure(config);
   Eigen::VectorXd theta = costFunction->configure(dataFunction->getTrainingX(),
       dataFunction->getTrainingY());
 

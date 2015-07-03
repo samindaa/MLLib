@@ -8,14 +8,15 @@
 #ifndef MEANPOOLFUNCTION_H_
 #define MEANPOOLFUNCTION_H_
 
-#include "PoolFunction.h"
+#include "PoolingFunction.h"
 
-class MeanPoolFunction: public PoolFunction
+class MeanPoolFunction: public PoolingFunction
 {
   public:
     MeanPoolFunction(const int& numFilters, const int& outputDim);
     virtual ~MeanPoolFunction();
-    PooledFunctions* pool(const ConvolutedFunctions* convolutedFunctions, const int& poolDim);
+    Poolings* pool(const Convolutions* convolutedFunctions, const int& poolDim);
+    void delta_pool(const int& poolDim);
 };
 
 #endif /* MEANPOOLFUNCTION_H_ */

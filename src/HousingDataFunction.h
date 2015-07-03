@@ -13,7 +13,7 @@
 class HousingDataFunction: public DataFunction
 {
   public:
-    void configure(const ConfigurationDescription* configuration);
+    void configure(Config* config);
 };
 
 #endif /* HOUSINGDATAFUNCTION_H_ */

@@ -15,14 +15,14 @@
 class Driver
 {
   private:
-    ConfigurationDescription* configuration;
+    Config* config;
     DataFunction* dataFunction;
     CostFunction* costFunction;
     Optimizer* optimizer;
 
   public:
-    Driver(ConfigurationDescription* configuration, DataFunction* dataFunction,
-        CostFunction* costFunction, Optimizer* optimizer);
+    Driver(Config* config, DataFunction* dataFunction, CostFunction* costFunction,
+        Optimizer* optimizer);
     ~Driver();
     void drive();
 

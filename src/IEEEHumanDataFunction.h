@@ -22,7 +22,7 @@ class IEEEHumanDataFunction: public DataFunction
     };
 
   public:
-    void configure(const ConfigurationDescription* configuration);
+    void configure(Config* config);
 
   private:
     void read(const std::vector<std::string>& filevector, std::vector<Meta>& datavector,
