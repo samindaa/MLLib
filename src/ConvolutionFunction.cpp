@@ -6,6 +6,7 @@
  */
 
 #include "ConvolutionFunction.h"
+#include <iostream>
 
 ConvolutionFunction::ConvolutionFunction(FilterFunction* filterFunction,
     ActivationFunction* activationFunction) :
@@ -16,12 +17,7 @@ ConvolutionFunction::ConvolutionFunction(FilterFunction* filterFunction,
 
 ConvolutionFunction::~ConvolutionFunction()
 {
-  for (auto iter = convolutions->unordered_map.begin(); iter != convolutions->unordered_map.end();
-      ++iter)
-  {
-    for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
-      delete iter2->second;
-  }
+  clear();
 }
 
 Convolutions* ConvolutionFunction::conv(const Eigen::MatrixXd& X, const Eigen::Vector2i& config)
@@ -96,5 +92,17 @@ void ConvolutionFunction::validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd
       Conv(row, col) = Patch.cwiseProduct(W).sum() + b;
     }
   }
+}
+
+void ConvolutionFunction::clear()
+{
+  std::cout << "ConvolutionFunction::clear()" << std::endl;
+  for (auto iter = convolutions->unordered_map.begin(); iter != convolutions->unordered_map.end();
+      ++iter)
+  {
+    for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
+      delete iter2->second;
+  }
+  convolutions->unordered_map.clear();
 }
 

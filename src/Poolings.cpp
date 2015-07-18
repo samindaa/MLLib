@@ -14,6 +14,11 @@ Poolings::Poolings(const int& numFilters, const int& outputDim) :
 
 Poolings::~Poolings()
 {
+  clear();
+}
+
+void Poolings::clear()
+{
   for (auto iter = unordered_map_sensitivities.begin(); iter != unordered_map_sensitivities.end();
       ++iter)
   {

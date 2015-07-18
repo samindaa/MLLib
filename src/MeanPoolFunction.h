@@ -17,6 +17,7 @@ class MeanPoolFunction: public PoolingFunction
     virtual ~MeanPoolFunction();
     Poolings* pool(const Convolutions* convolutedFunctions, const int& poolDim);
     void delta_pool(const int& poolDim);
+    void clear();
 };
 
 #endif /* MEANPOOLFUNCTION_H_ */

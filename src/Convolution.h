@@ -8,12 +8,10 @@
 #ifndef CONVOLUTION_H_
 #define CONVOLUTION_H_
 
-#include "EigenFunction.h"
+#include "EigenMatrixXd.h"
 
-class Convolution: public EigenFunction
+class Convolution: public EigenMatrixXd
 {
-  public:
-    Eigen::MatrixXd X;
 };
 
 #endif /* CONVOLUTION_H_ */

@@ -8,8 +8,8 @@
 #ifndef POOLINGS_H_
 #define POOLINGS_H_
 
-#include "EigenFunction.h"
 #include <unordered_map>
+#include "EigenFunction.h"
 #include "Pooling.h"
 
 class Poolings: public EigenFunction
@@ -27,6 +27,7 @@ class Poolings: public EigenFunction
 
     void toMatrix(Eigen::MatrixXd& ActivationsPooled, const int& imageIndex);
     void toPoolingSensitivities(const Eigen::MatrixXd& PoolingDelta);
+    void clear();
 };
 
 #endif /* POOLINGS_H_ */

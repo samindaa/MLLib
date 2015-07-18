@@ -8,12 +8,10 @@
 #ifndef POOLING_H_
 #define POOLING_H_
 
-#include "EigenFunction.h"
+#include "EigenMatrixXd.h"
 
-class Pooling: public EigenFunction
+class Pooling: public EigenMatrixXd
 {
-  public:
-    Eigen::MatrixXd X;
 };
 
 #endif /* POOLING_H_ */

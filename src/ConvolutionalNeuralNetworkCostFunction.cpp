@@ -8,14 +8,15 @@
 #include "ConvolutionalNeuralNetworkCostFunction.h"
 #include <iostream>
 
-ConvolutionalNeuralNetworkCostFunction::ConvolutionalNeuralNetworkCostFunction() :
-    imageDim(28), filterDim(9), numFilters(/*20*/2), poolDim(/*2*/5), numClasses(10), //
-    convDim(imageDim - filterDim + 1), outputDim(convDim / poolDim), //
+ConvolutionalNeuralNetworkCostFunction::ConvolutionalNeuralNetworkCostFunction(const int& imageDim,
+    const int& filterDim, const int& numFilters, const int& poolDim, const int& numClasses) :
+    imageDim(imageDim), filterDim(filterDim), numFilters(numFilters), poolDim(poolDim), //
+    numClasses(numClasses), convDim(imageDim - filterDim + 1), outputDim(convDim / poolDim), //
     cnnFilterFunction(new CNNFilterFunction(filterDim, numFilters)), //
     sigmoidActivationFunction(new SigmoidFunction()), //
     convolutionFunction(new ConvolutionFunction(cnnFilterFunction, sigmoidActivationFunction)), //
     poolingFunction(new MeanPoolFunction(numFilters, outputDim)), //
-    softmaxActivationFunction(new SoftmaxFunction()), numberOfParameters(0)
+    softmaxActivationFunction(new SoftmaxFunction()), numberOfParameters(0), LAMBDA(0.0f)
 {
   // fixme: size checking
 }
@@ -52,8 +53,12 @@ Eigen::VectorXd ConvolutionalNeuralNetworkCostFunction::configure(const Eigen::M
   WdGrad.setZero(hiddenSize, numClasses);
   bdGrad.setZero(numClasses);
 
+  //LAMBDA = 3e-3;
+
   numberOfParameters = cnnFilterFunction->getWeights().size()
       + cnnFilterFunction->getBiases().size() + Wd.size() + bd.size();
+
+  std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
 
   Eigen::VectorXd theta(numberOfParameters);
 
@@ -383,13 +388,51 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
 
   grad.resize(numberOfParameters);
   toGrad(grad);
+  grad.array() += (theta.array() * LAMBDA);
 
-  return -((Y.array() * OutputZ.array().log()).sum());
+  return -((Y.array() * OutputZ.array().log()).sum())
+      + (theta.array().square().sum()) * LAMBDA * 0.5f;;
 }
 
 double ConvolutionalNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+    const Eigen::MatrixXd& X0, const Eigen::MatrixXd& Y)
 {
-  return 0.0f;
+  toWeights(theta);
+
+  int correct = 0;
+  int incorrect = 0;
+
+  convolutionFunction->clear();
+  poolingFunction->clear();
+
+  for (int i = 0; i < X0.rows(); ++i)
+  {
+    Eigen::MatrixXd X = X0.row(i);
+    Convolutions* activations = convolutionFunction->conv(X, config);
+    Poolings* activationsPooled = poolingFunction->pool(activations, poolDim);
+    ActivationsPooled = Eigen::MatrixXd::Zero(activationsPooled->unordered_map.size(),
+        std::pow(outputDim, 2) * numFilters); // fixme:
+    for (auto iter = activationsPooled->unordered_map.begin();
+        iter != activationsPooled->unordered_map.end(); ++iter)
+      //ActivationsPooled.row(iter->first) = activationsPooled->toVector(iter->first).transpose();
+      activationsPooled->toMatrix(ActivationsPooled, iter->first);
+    OutputA = ((ActivationsPooled * Wd).rowwise() + bd.transpose()).matrix();
+    OutputZ = softmaxActivationFunction->getFunc(OutputA);
+
+    Eigen::MatrixXf::Index maxIndex;
+
+    OutputZ.row(0).maxCoeff(&maxIndex);
+    if (Y(i, maxIndex) == 1)
+      ++correct;
+    else
+    {
+      ++incorrect;
+      //std::cout << i << std::endl;
+      //std::cout << "pred: " << OutputZ.row(i) << std::endl;
+      //std::cout << "true: " << Y.row(i) << std::endl;
+    }
+  }
+  std::cout << "incorrect: " << incorrect << " outof: " << X0.rows() << std::endl;
+  return double(correct) * 100.0f / X0.rows();
 }
 

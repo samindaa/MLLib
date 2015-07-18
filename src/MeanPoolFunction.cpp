@@ -16,11 +16,28 @@ MeanPoolFunction::MeanPoolFunction(const int& numFilters, const int& outputDim) 
 
 MeanPoolFunction::~MeanPoolFunction()
 {
+  clear();
+}
+
+void MeanPoolFunction::clear()
+{
+  std::cout << "MeanPoolFunction::clear()" << std::endl;
   for (auto iter = poolings->unordered_map.begin(); iter != poolings->unordered_map.end(); ++iter)
   {
     for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
       delete iter2->second;
   }
+
+  for (auto iter = poolings->unordered_map_sensitivities.begin();
+      iter != poolings->unordered_map_sensitivities.end(); ++iter)
+  {
+    for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
+      delete iter2->second;
+  }
+
+  poolings->unordered_map.clear();
+  poolings->unordered_map_sensitivities.clear();
+
 }
 
 Poolings* MeanPoolFunction::pool(const Convolutions* convolutedFunctions, const int& poolDim)

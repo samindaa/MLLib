@@ -26,6 +26,7 @@ class ConvolutionFunction: public EigenFunction
     Convolutions* conv(const Eigen::MatrixXd& X, const Eigen::Vector2i& cofig);
     void validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd& I, const Eigen::MatrixXd& W,
         const double& b);
+    void clear();
 };
 
 #endif /* CONVOLUTIONFUNCTION_H_ */

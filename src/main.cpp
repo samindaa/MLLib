@@ -9,6 +9,10 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include <random>
+#include <functional>
+#include <thread>
+//
 #include "Driver.h"
 #include "HousingDataFunction.h"
 #include "LIBLBFGSOptimizer.h"
@@ -22,6 +26,12 @@
 #include "ConvolutionFunction.h"
 #include "MeanPoolFunction.h"
 #include "ConvolutionalNeuralNetworkCostFunction.h"
+#include "SGDOptimizer.h"
+#include "WhiteningFunction.h"
+#include "MNISTSamplePatchesDataFunction.h"
+#include "SoftICACostFunction.h"
+#include "NaturalImageDataFunction.h"
+#include "StopWatch.h"
 //
 #include "IEEEHumanDataFunction.h"
 
@@ -65,6 +75,33 @@ void testMNISTBinaryDigitsDriver()
   updateMNISTConfig(config);
 
   LIBLBFGSOptimizer lbfgs;
+  Driver drv(&config, &mnistdf, &mnistcf, &lbfgs);
+  drv.drive();
+}
+
+void testSoftmaxCostFunction()
+{
+  MNISTDataBinaryDigitsFunction mnistdf(true);
+  Config config;
+  updateMNISTConfig(config);
+  mnistdf.configure(&config);
+
+  SoftmaxCostFunction mnistcf;
+  Eigen::VectorXd theta = mnistcf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
+
+  mnistcf.getNumGrad(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), 5);
+}
+
+void testSoftmaxCostFunctionDriver()
+{
+  MNISTDataBinaryDigitsFunction mnistdf(true);
+  Config config;
+  updateMNISTConfig(config);
+  SoftmaxCostFunction mnistcf(1.0f);
+  LIBLBFGSOptimizer lbfgs;
+  //config.setValue("debugMode", true);
+  config.setValue("numGrd", true);
+  //config.setValue("addBiasTerm", false);
   Driver drv(&config, &mnistdf, &mnistcf, &lbfgs);
   drv.drive();
 }
@@ -365,7 +402,13 @@ void testConvolutionalNeuralNetworkCostFunction()
   config.setValue("debugMode", true);
   mnistdf.configure(&config);
 
-  ConvolutionalNeuralNetworkCostFunction cnn;
+  const int imageDim = 28; // height/width of image
+  const int filterDim = 9; // dimension of convolutional filter
+  const int numFilters = 2; // number of convolutional filters
+  const int poolDim = 5; // dimension of pooling area
+  const int numClasses = 10; // number of classes to predict
+
+  ConvolutionalNeuralNetworkCostFunction cnn(imageDim, filterDim, numFilters, poolDim, numClasses);
   Eigen::VectorXd theta = cnn.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
 
   std::cout << "theta: " << theta.size() << std::endl;
@@ -395,12 +438,239 @@ void testKroneckorTensorProduct()
   std::cout << C << std::endl;
 }
 
+void testMNISTConvolutionalNeuralNetworkDriver()
+{
+  MNISTDataFunction mnistdf;
+  Config config;
+  updateMNISTConfig(config);
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  SGDOptimizer sgd;
+
+  const int imageDim = 28; // height/width of image
+  const int filterDim = 9; // dimension of convolutional filter
+  const int numFilters = 20; // number of convolutional filters
+  const int poolDim = 2; // dimension of pooling area
+  const int numClasses = 10; // number of classes to predict
+
+  ConvolutionalNeuralNetworkCostFunction cf(imageDim, filterDim, numFilters, poolDim, numClasses);
+  Driver drv(&config, &mnistdf, &cf, &sgd);
+  drv.drive();
+}
+
+double sample(double)
+{
+  static std::random_device rd;
+  static std::mt19937 gen(rd());
+
+  // values near the mean are the most likely
+  // standard deviation affects the dispersion of generated values from the mean
+  std::normal_distribution<> d(0.0f, 1.0f);
+  return d(gen);
+}
+
+void testNormalRandomWithEigen()
+{
+  Eigen::MatrixXd m = Eigen::MatrixXd::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
+  std::cout << m << std::endl;
+}
+
+void testEigenVectorizedOperations()
+{
+  const Eigen::MatrixXd m0 = Eigen::MatrixXd::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
+  std::cout << "m: " << std::endl;
+  std::cout << m0 << std::endl;
+
+  const Eigen::MatrixXd m1 = m0.cwiseProduct(m0);
+  std::cout << "m0: " << std::endl;
+  std::cout << m0 << std::endl;
+  std::cout << "m1: " << std::endl;
+  std::cout << m1 << std::endl;
+
+  const Eigen::MatrixXd m2 = m0.array().square().matrix();
+  std::cout << "m0: " << std::endl;
+  std::cout << m0 << std::endl;
+  std::cout << "m2: " << std::endl;
+  std::cout << m2 << std::endl;
+
+}
+
+void testWhiteningFunction()
+{
+  MNISTDataFunction mnistdf;
+  Config config;
+
+  config.setValue("debugMode", false);
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("zeroMean", true);
+  config.setValue("pcaWhitening", true);
+  config.setValue("zcaWhitening", true);
+
+  updateMNISTConfig(config);
+  mnistdf.configure(&config);
+
+  WhiteningFunction wf(&config);
+  Eigen::MatrixXd XZCAWhite = wf.gen(mnistdf.getTrainingX());
+
+  // debug
+  std::ofstream xofs("X100.txt");
+  std::ofstream zofs("Z100.txt");
+
+  xofs << mnistdf.getTrainingX().topRows<100>() << std::endl;
+  zofs << XZCAWhite.topRows<100>() << std::endl;
+}
+
+void testMNISTSamplePatchesDataFunction()
+{
+  const int numPatches = 20; // 10000
+  const int patchWidth = 9;
+
+  MNISTSamplePatchesDataFunction mnistdf(numPatches, patchWidth);
+  Config config;
+
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("trainingMeanAndStdd", false);
+
+  updateMNISTConfig(config);
+  mnistdf.configure(&config);
+
+  if (true)
+  {
+    //debug
+    std::cout << mnistdf.getTrainingX().rows() << " x " << mnistdf.getTrainingX().cols()
+        << std::endl;
+    //std::ofstream of("../patches.txt");
+    //of << mnistdf.getTrainingX() << std::endl;
+  }
+}
+
+void testSoftICACostFunction()
+{
+  const int numPatches = 500; // 10000
+  const int patchWidth = 9;
+  MNISTSamplePatchesDataFunction mnistdf(numPatches, patchWidth);
+  Config config;
+
+  config.setValue("debugMode", true);
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("trainingMeanAndStdd", false);
+
+  updateMNISTConfig(config);
+  mnistdf.configure(&config);
+
+  const int numFeatures = 5; // 50
+  const double lambda = 0.0005f;
+  const double epsilon = 1e-2;
+
+  SoftICACostFunction sf(numFeatures, lambda, epsilon);
+
+  Eigen::VectorXd theta = sf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
+
+  std::cout << "theta: " << theta.size() << std::endl;
+  Eigen::VectorXd grad;
+  double cost = sf.evaluate(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), grad);
+
+  std::cout << "cost: " << cost << std::endl;
+  std::cout << "grad: " << grad.size() << std::endl;
+
+  double error = sf.getNumGrad(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY());
+  std::cout << "error: " << error << std::endl;
+
+}
+
+void testSoftICADriver()
+{
+  const int numPatches = 10000;
+  const int patchWidth = 9;
+  MNISTSamplePatchesDataFunction mnistdf(numPatches, patchWidth);
+  Config config;
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("trainingMeanAndStdd", false);
+  updateMNISTConfig(config);
+
+  const int numFeatures = 50;
+  const double lambda = 0.0005f;
+  const double epsilon = 1e-2;
+
+  SoftICACostFunction sfc(numFeatures, lambda, epsilon);
+
+  LIBLBFGSOptimizer lbfgs;
+  Driver drv(&config, &mnistdf, &sfc, &lbfgs);
+  drv.drive();
+
+}
+
+void testNaturalImageDataFunction()
+{
+
+  const int numPatches = 50; // 10000
+  const int patchWidth = 20;
+
+  NaturalImageDataFunction nidf(numPatches, patchWidth);
+  Config config;
+  nidf.configure(&config);
+}
+
+void testSoftICADriver2()
+{
+  const int numPatches = 20000;
+  const int patchWidth = 8;
+  NaturalImageDataFunction nidf(numPatches, patchWidth);
+  Config config;
+
+  const int numFeatures = 50;
+  const double lambda = 0.0005f;
+  const double epsilon = 1e-2;
+
+  SoftICACostFunction sfc(numFeatures, lambda, epsilon);
+
+  LIBLBFGSOptimizer lbfgs;
+  Driver drv(&config, &nidf, &sfc, &lbfgs);
+  drv.drive();
+
+}
+
+void testStopWatch()
+{
+  StopWatch stopWatch;
+  stopWatch.start();
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  stopWatch.end();
+
+  std::cout << "ms: " << stopWatch.ms_count() << " us: " << stopWatch.us_count() << std::endl;
+}
+
+void testEigenConstMap()
+{
+  Eigen::VectorXd x(4);
+  x << 1, 2, 3, 4;
+  std::cout << x << std::endl;
+
+  const Eigen::VectorXd y = x;
+
+  std::cout << y << std::endl;
+
+  Eigen::MatrixXd X = Eigen::Map<const Eigen::MatrixXd>(y.data(), 2, 2);
+
+  std::cout << X << std::endl;
+}
+
 int main()
 {
   std::cout << "*** start ***" << std::endl;
 //  testHousingDriver();
 //  testMNISTDataFunction();
 //  testMNISTBinaryDigitsDriver();
+//  testSoftmaxCostFunction();
+  testSoftmaxCostFunctionDriver();
 //  testMNISTBinaryDigitsSupervisedNeuralNetworkCostFunctionDriver();
 //  testMNISTDriver();
 //  testEigenMap();
@@ -409,8 +679,19 @@ int main()
 //  testMNISTSupervisedNeuralNetworkDriver();
 //  testDualToneMultiFrequencySignalingDataFunction();
 //  testConvolutionAndPool();
-  testConvolutionalNeuralNetworkCostFunction();
+//  testConvolutionalNeuralNetworkCostFunction();
+//  testMNISTConvolutionalNeuralNetworkDriver();
 //  testKroneckorTensorProduct();
+//  testNormalRandomWithEigen();
+//  testWhiteningFunction();
+//  testMNISTSamplePatchesDataFunction();
+//  testSoftICACostFunction();
+//  testSoftICADriver();
+//  testEigenVectorizedOperations();
+//  testNaturalImageDataFunction();
+//  testSoftICADriver2();
+//  testStopWatch();
+//  testEigenConstMap();
   std::cout << "*** end-- ***" << std::endl;
   return 0;
 }

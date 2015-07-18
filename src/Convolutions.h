@@ -8,8 +8,8 @@
 #ifndef CONVOLUTIONS_H_
 #define CONVOLUTIONS_H_
 
-#include "EigenFunction.h"
 #include <unordered_map>
+#include "EigenFunction.h"
 #include "Convolution.h"
 
 class Convolutions: public EigenFunction

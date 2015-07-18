@@ -71,9 +71,9 @@ void Config::resurrect()
     {
       if (str.length())
       {
-        unsigned int found = str.find_first_of("#");
-        if ((found == std::string::npos) && (found > str.size()))
-        {
+        unsigned int npos = str.find_first_of("#");
+        if ((npos == std::string::npos) && (npos > str.size()))
+        { // str is not a comment
           std::vector<std::string> tokens;
           configSplit(str, '=', tokens);
           assert(tokens.size() == 2); // Only name=value pairs

@@ -33,6 +33,7 @@ class PoolingFunction
     virtual Poolings* pool(const Convolutions* convolutedFunctions,
         const int& poolDim) =0;
     virtual void delta_pool(const int& poolDim)=0;
+    virtual void clear() =0;
 
 };
 

@@ -8,7 +8,6 @@
 #ifndef OPTIMIZER_H_
 #define OPTIMIZER_H_
 
-#include "lbfgs.h"
 #include "CostFunction.h"
 #include "DataFunction.h"
 

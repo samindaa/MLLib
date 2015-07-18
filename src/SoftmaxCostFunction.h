@@ -15,7 +15,7 @@ class SoftmaxCostFunction: public CostFunction
 {
   private:
     ActivationFunction* softmax;
-    const double& LAMBDA;
+    double LAMBDA;
 
   public:
     SoftmaxCostFunction(const double& LAMBDA = 0.0f);
@@ -25,10 +25,6 @@ class SoftmaxCostFunction: public CostFunction
     double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
         const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
     double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
-
-  private:
-    Eigen::MatrixXd getMat(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
         const Eigen::MatrixXd& Y);
 };
 

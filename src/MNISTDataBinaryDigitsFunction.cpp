@@ -25,7 +25,7 @@ void MNISTDataBinaryDigitsFunction::configurePolicy(const Eigen::MatrixXd& tmpX,
       ++numberOfPolicyRows;
   }
 
-  std::cout << "numberOfPolicyRows: " << numberOfPolicyRows << std::endl;
+  std::cout << "MNISTDataBinaryDigitsFunction: " << numberOfPolicyRows << std::endl;
   X.setZero(numberOfPolicyRows, tmpX.cols());
   if (targetOneOfKCoding)
     Y.setZero(numberOfPolicyRows, 2);

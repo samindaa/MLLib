@@ -9,6 +9,7 @@
 #define LIBLBFGSOPTIMIZER_H_
 
 #include "Optimizer.h"
+#include "lbfgs.h"
 
 class LIBLBFGSOptimizer: public Optimizer
 {

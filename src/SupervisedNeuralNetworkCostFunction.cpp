@@ -170,7 +170,7 @@ double SupervisedNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& thet
   int correct = 0;
   int incorrect = 0;
   //omp_set_num_threads(NUMBER_OF_OPM_THREADS);
-//#pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
+#pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
   for (int i = 0; i < X.rows(); ++i)
   {
     layers[layers.size() - 1]->Z.row(i).maxCoeff(&maxIndex);

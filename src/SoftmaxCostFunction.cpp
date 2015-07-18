@@ -7,6 +7,7 @@
 
 #include "SoftmaxCostFunction.h"
 #include <iostream>
+#include <fstream>
 
 SoftmaxCostFunction::SoftmaxCostFunction(const double& LAMBDA) :
     softmax(new SoftmaxFunction), LAMBDA(LAMBDA)
@@ -30,29 +31,21 @@ Eigen::VectorXd SoftmaxCostFunction::configure(const Eigen::MatrixXd& X, const E
 double SoftmaxCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
     const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
 {
-  Eigen::MatrixXd Mat = softmax->getFunc(getMat(theta, X, Y));
-
+  Eigen::MatrixXd Mat = //
+      softmax->getFunc(X * Eigen::Map<const Eigen::MatrixXd>(theta.data(), X.cols(), Y.cols()));
   Eigen::MatrixXd Grad = -(X.transpose() * (Y - Mat));
   grad = Eigen::Map<Eigen::VectorXd>(Grad.data(), Grad.cols() * Grad.rows()) + (theta * LAMBDA);
-
   return -((Y.array() * Mat.array().log()).sum()) + (theta.array().square().sum()) * LAMBDA * 0.5f;
-}
-
-Eigen::MatrixXd SoftmaxCostFunction::getMat(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
-{
-  Eigen::VectorXd theta_tmp = theta;
-  Eigen::Map<Eigen::MatrixXd> Theta(theta_tmp.data(), X.cols(), Y.cols()); // reshape
-  return X * Theta;
 }
 
 double SoftmaxCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
     const Eigen::MatrixXd& Y)
 {
-  /*Eigen::VectorXd theta_tmp = theta;
-   Eigen::MatrixXd Theta(Eigen::Map<Eigen::MatrixXd>(theta_tmp.data(), X.cols(), Y.cols())); // reshape*/
 
-  Eigen::MatrixXd Mat = getMat(theta, X, Y);
+  //std::ofstream ofs("m_test.txt");
+  //ofs << X.topRows<10>() << std::endl;
+
+  Eigen::MatrixXd Mat = X * Eigen::Map<const Eigen::MatrixXd>(theta.data(), X.cols(), Y.cols());
   Eigen::MatrixXf::Index maxIndex;
   int correct = 0;
   int incorrect = 0;
@@ -66,9 +59,14 @@ double SoftmaxCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::
     else
     {
       ++incorrect;
-      std::cout << i << std::endl;
-      std::cout << "pred: " << Mat.row(i) << std::endl;
-      std::cout << "true: " << Y.row(i) << std::endl;
+#pragma omp critical
+      {
+        std::cout << i << std::endl;
+        std::cout << "pred: " << Mat.row(i) << std::endl;
+        std::cout << "true: " << Y.row(i) << std::endl;
+        //std::ofstream ofs("m_test.txt");
+        //ofs << X.row(i) << std::endl;
+      }
     }
   }
 

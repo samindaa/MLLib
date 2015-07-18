@@ -8,6 +8,9 @@
 #ifndef CONVOLUTIONALNEURALNETWORKCOSTFUNCTION_H_
 #define CONVOLUTIONALNEURALNETWORKCOSTFUNCTION_H_
 
+#include <random>
+#include <functional>
+//
 #include "CostFunction.h"
 #include "FilterFunction.h"
 #include "SigmoidFunction.h"
@@ -30,10 +33,19 @@ class ConvolutionalNeuralNetworkCostFunction: public CostFunction
         {
         }
 
+        static double sample(double)
+        {
+          static std::random_device rd;
+          static std::mt19937 gen(rd());
+          std::normal_distribution<> d(0.0f, 1.0f);
+          return d(gen);
+        }
+
         void configure()
         {
           config << filterDim, filterDim;
-          Weights.setRandom(filterDim * filterDim, numFilters);
+          Weights = Eigen::MatrixXd::Zero(filterDim * filterDim, numFilters).unaryExpr(
+              std::ptr_fun(CNNFilterFunction::sample));
           Weights.array() *= 1e-1;
           biases.setZero(numFilters);
 
@@ -73,9 +85,11 @@ class ConvolutionalNeuralNetworkCostFunction: public CostFunction
     Eigen::MatrixXd PoolingDelta;
 
     int numberOfParameters;
+    double LAMBDA;
 
   public:
-    ConvolutionalNeuralNetworkCostFunction();
+    ConvolutionalNeuralNetworkCostFunction(const int& imageDim, const int& filterDim,
+        const int& numFilters, const int& poolDim, const int& numClasses);
     ~ConvolutionalNeuralNetworkCostFunction();
 
     Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);

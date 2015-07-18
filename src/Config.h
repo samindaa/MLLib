@@ -14,14 +14,14 @@
 
 #if defined(EMBEDDED_MODE)
 #else
-#include <map>
+#include <unordered_map>
 #include <iostream>
 #include <sstream>
 
 class Config
 {
   private:
-    typedef std::map<std::string, std::string> Values;
+    typedef std::unordered_map<std::string, std::string> Values; // O(1) amortized access
     Values values;
     std::string name;
     std::string path;

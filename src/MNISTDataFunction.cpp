@@ -24,10 +24,13 @@ void MNISTDataFunction::configure(Config* config)
   config->getValue(testLabelsKeyMnist, std::string(testLabelsKeyMnist)), //
   tmpTeX, tmpTeY, config->getValue("debugMode", false));
 
-  configurePolicy(tmpTrX, trainingX, tmpTrY, trainingY);
-  configurePolicy(tmpTeX, testingX, tmpTeY, testingY);
+  if (config->getValue("configurePolicyTraining", true))
+    configurePolicy(tmpTrX, trainingX, tmpTrY, trainingY);
+  if (config->getValue("configurePolicyTesting", true))
+    configurePolicy(tmpTeX, testingX, tmpTeY, testingY);
 
-  trainingMeanAndStdd();
+  if (config->getValue("trainingMeanAndStdd", true))
+    trainingMeanAndStdd();
   if (config->getValue("meanStddNormalize", true))
     datasetsMeanNormalize(0.1f);
   if (config->getValue("addBiasTerm", true))
@@ -109,7 +112,7 @@ void MNISTDataFunction::imagesLabelsLoad(const std::string& imagesfilename,
 
   if (debugMode)
   {
-    numberOfImages = numberOfLabels = 13;
+    numberOfImages = numberOfLabels = 23;
     std::cout << "DEBUG MODE" << std::endl;
   }
 

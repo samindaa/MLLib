@@ -28,15 +28,16 @@ void Driver::drive()
   Eigen::VectorXd theta = costFunction->configure(dataFunction->getTrainingX(),
       dataFunction->getTrainingY());
 
-  costFunction->getNumGrad(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY(), 5);
-
-//  return;
+  if (config->getValue("numGrd", false))
+    costFunction->getNumGrad(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY(), 5);
 
   optimizer->optimize(theta, dataFunction, costFunction); //<<fixme
 
-  std::cout << "training_accuracy: "
-      << costFunction->accuracy(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY())
-      << std::endl;
+  if (config->getValue("training_accuracy", false))
+    std::cout << "training_accuracy: "
+        << costFunction->accuracy(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY())
+        << std::endl;
+
   std::cout << "testing_accuracy: "
       << costFunction->accuracy(theta, dataFunction->getTestingX(), dataFunction->getTestingY())
       << std::endl;

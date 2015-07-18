@@ -46,6 +46,7 @@ double CostFunction::getNumGrad(const Eigen::VectorXd& theta, const Eigen::Matri
 double CostFunction::getNumGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
     const Eigen::MatrixXd& Y, const int& numChecks)
 {
+
   const double epsilon = 1e-3;
   double sumError = 0.0f;
 
