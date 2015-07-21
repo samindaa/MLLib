@@ -16,13 +16,13 @@ class SupervisedNeuralNetworkLayer
 {
   public:
     int size;
-    Eigen::MatrixXd W;
-    Eigen::MatrixXd GradientW;
+    Matrix_t W;
+    Matrix_t GradientW;
     Eigen::VectorXd b;
     Eigen::VectorXd gradientb;
-    Eigen::MatrixXd Delta;
-    Eigen::MatrixXd Z; //<< Activation
-    Eigen::MatrixXd A; //<< Input to the layer
+    Matrix_t Delta;
+    Matrix_t Z; //<< Activation
+    Matrix_t A; //<< Input to the layer
     ActivationFunction* function;
 
     enum FunctionType

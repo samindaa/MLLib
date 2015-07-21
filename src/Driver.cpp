@@ -25,7 +25,7 @@ Driver::~Driver()
 void Driver::drive()
 {
   dataFunction->configure(config);
-  Eigen::VectorXd theta = costFunction->configure(dataFunction->getTrainingX(),
+  Vector_t theta = costFunction->configure(dataFunction->getTrainingX(),
       dataFunction->getTrainingY());
 
   if (config->getValue("numGrd", false))

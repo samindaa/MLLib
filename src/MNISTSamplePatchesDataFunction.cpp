@@ -27,8 +27,8 @@ MNISTSamplePatchesDataFunction::~MNISTSamplePatchesDataFunction()
   delete whiteningFunction;
 }
 
-void MNISTSamplePatchesDataFunction::configurePolicy(const Eigen::MatrixXd& tmpX,
-    Eigen::MatrixXd& X, const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y)
+void MNISTSamplePatchesDataFunction::configurePolicy(const Matrix_t& tmpX, Matrix_t& X,
+    const Matrix_t& tmpY, Matrix_t& Y)
 {
   std::random_device rd;
   std::mt19937 gen(rd());
@@ -50,13 +50,15 @@ void MNISTSamplePatchesDataFunction::configurePolicy(const Eigen::MatrixXd& tmpX
 //          << std::endl;
     }
 
-    Eigen::VectorXd row = tmpX.row(img);
-    Eigen::Map<Eigen::MatrixXd> Patch(row.data(), imgWidth, imgWidth);
-    Eigen::MatrixXd P = Patch.block(y, x, patchWidth, patchWidth);
-    Eigen::Map<Eigen::VectorXd> p(P.data(), pow(patchWidth, 2));
+    Vector_t row = tmpX.row(img);
+    Eigen::Map<Matrix_t> Patch(row.data(), imgWidth, imgWidth);
+    Matrix_t P = Patch.block(y, x, patchWidth, patchWidth);
+    Eigen::Map<Vector_t> p(P.data(), pow(patchWidth, 2));
     X.row(i) = p.transpose();
   }
 
   X = whiteningFunction->gen(X);
+
+  // fixme: unit ball
 }
 

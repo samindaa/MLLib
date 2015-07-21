@@ -21,12 +21,12 @@ class MNISTDataFunction: public DataFunction
     void configure(Config* config);
 
   protected:
-    virtual void configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y);
+    virtual void configurePolicy(const Matrix_t& tmpX, Matrix_t& X,
+        const Matrix_t& tmpY, Matrix_t& Y);
 
   private:
     void imagesLabelsLoad(const std::string& imagesfilename, const std::string& labelsfilename,
-        Eigen::MatrixXd& images, Eigen::MatrixXd& labels, const bool& debugMode);
+        Matrix_t& images, Matrix_t& labels, const bool& debugMode);
 };
 
 #endif /* MNISTDATAFUNCTION_H_ */

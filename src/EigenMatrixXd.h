@@ -14,7 +14,7 @@
 class EigenMatrixXd: public EigenFunction
 {
   public:
-    Eigen::MatrixXd X;
+    Matrix_t X;
 };
 
 #endif /* EIGENMATRIXXD_H_ */

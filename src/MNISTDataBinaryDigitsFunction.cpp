@@ -12,8 +12,8 @@ MNISTDataBinaryDigitsFunction::MNISTDataBinaryDigitsFunction(const bool& targetO
 {
 }
 
-void MNISTDataBinaryDigitsFunction::configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y)
+void MNISTDataBinaryDigitsFunction::configurePolicy(const Matrix_t& tmpX, Matrix_t& X,
+    const Matrix_t& tmpY, Matrix_t& Y)
 {
   int numberOfPolicyRows = 0;
 

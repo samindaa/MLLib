@@ -20,12 +20,10 @@ class LogisticCostFunction: public CostFunction
     LogisticCostFunction();
     ~LogisticCostFunction();
 
-    Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
+    Vector_t configure(const Matrix_t& X, const Matrix_t& Y);
+    double evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y, Vector_t& grad);
 
-    double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    double accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y);
 
 };
 

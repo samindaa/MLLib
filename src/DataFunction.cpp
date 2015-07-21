@@ -15,22 +15,22 @@ DataFunction::~DataFunction()
 {
 }
 
-Eigen::MatrixXd& DataFunction::getTrainingX()
+Matrix_t& DataFunction::getTrainingX()
 {
   return trainingX;
 }
 
-Eigen::MatrixXd& DataFunction::getTestingX()
+Matrix_t& DataFunction::getTestingX()
 {
   return testingX;
 }
 
-Eigen::MatrixXd& DataFunction::getTrainingY()
+Matrix_t& DataFunction::getTrainingY()
 {
   return trainingY;
 }
 
-Eigen::MatrixXd& DataFunction::getTestingY()
+Matrix_t& DataFunction::getTestingY()
 {
   return testingY;
 }
@@ -58,10 +58,10 @@ void DataFunction::datasetsSetBias()
   std::cout << "setBias: " << std::endl;
   // add the bias term
   trainingX.conservativeResize(Eigen::NoChange, trainingX.cols() + 1);
-  trainingX.col(trainingX.cols() - 1) = Eigen::VectorXd::Ones(trainingX.rows());
+  trainingX.col(trainingX.cols() - 1) = Vector_t::Ones(trainingX.rows());
 
   testingX.conservativeResize(Eigen::NoChange, testingX.cols() + 1);
-  testingX.col(testingX.cols() - 1) = Eigen::VectorXd::Ones(testingX.rows());
+  testingX.col(testingX.cols() - 1) = Vector_t::Ones(testingX.rows());
 
 }
 

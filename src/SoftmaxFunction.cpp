@@ -8,19 +8,19 @@
 #include "SoftmaxFunction.h"
 #include <cassert>
 
-Eigen::MatrixXd SoftmaxFunction::getFunc(const Eigen::MatrixXd& X)
+Matrix_t SoftmaxFunction::getFunc(const Matrix_t& X)
 {
-  Eigen::MatrixXd A = X;
-  Eigen::VectorXd rowMaxCoff = A.rowwise().maxCoeff();
+  Matrix_t A = X;
+  Vector_t rowMaxCoff = A.rowwise().maxCoeff();
   A.colwise() -= rowMaxCoff;
-  Eigen::MatrixXd MatExp = A.array().exp().matrix();
-  Eigen::VectorXd divider = MatExp.rowwise().sum().cwiseInverse();
+  Matrix_t MatExp = A.array().exp().matrix();
+  Vector_t divider = MatExp.rowwise().sum().cwiseInverse();
   return divider.asDiagonal() * MatExp;
 }
 
-Eigen::MatrixXd SoftmaxFunction::getGrad(const Eigen::MatrixXd& FX)
+Matrix_t SoftmaxFunction::getGrad(const Matrix_t& FX)
 {
   assert(false);
-  return Eigen::MatrixXd();
+  return Matrix_t();
 }
 

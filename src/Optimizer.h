@@ -18,7 +18,7 @@ class Optimizer
     {
     }
 
-    virtual void optimize(Eigen::VectorXd& theta, DataFunction* dataFunction,
+    virtual void optimize(Vector_t& theta, DataFunction* dataFunction,
         CostFunction* costFunction) =0;
 };
 

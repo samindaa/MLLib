@@ -7,12 +7,12 @@
 
 #include "SigmoidFunction.h"
 
-Eigen::MatrixXd SigmoidFunction::getFunc(const Eigen::MatrixXd& X)
+Matrix_t SigmoidFunction::getFunc(const Matrix_t& X)
 {
   return (1.0f + (-X).array().exp()).inverse().matrix();
 }
 
-Eigen::MatrixXd SigmoidFunction::getGrad(const Eigen::MatrixXd& FX)
+Matrix_t SigmoidFunction::getGrad(const Matrix_t& FX)
 {
   return FX.cwiseProduct((1.0f - FX.array()).matrix());
 }

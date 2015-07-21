@@ -19,52 +19,49 @@ SoftICACostFunction::~SoftICACostFunction()
 {
 }
 
-Eigen::VectorXd SoftICACostFunction::configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+Vector_t SoftICACostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
-  Eigen::VectorXd xNorm = (X.cwiseProduct(X).rowwise().sum().array() + 1e-8).sqrt();
-  XNorm = xNorm.array().inverse().matrix().asDiagonal();
-  W = Eigen::MatrixXd::Zero(numFeatures, X.cols()).unaryExpr(
-      std::ptr_fun(SoftICACostFunction::sample));
+  W = Matrix_t::Zero(numFeatures, X.cols()).unaryExpr(std::ptr_fun(SoftICACostFunction::sample));
   W.array() *= 0.01f;
-  W = (W.cwiseProduct(W).rowwise().sum().array().inverse().matrix().asDiagonal()) * W;
-  Eigen::Map<Eigen::VectorXd> theta(W.data(), W.rows() * W.cols());
+  W = W.cwiseQuotient(W.cwiseProduct(W).rowwise().sum().matrix().replicate(1, W.cols()));
+  Eigen::Map<Vector_t> theta(W.data(), W.rows() * W.cols());
   return theta;
 }
 
-double SoftICACostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& Xin,
-    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double SoftICACostFunction::evaluate(const Vector_t& theta, const Matrix_t& Xin, const Matrix_t& Y,
+    Vector_t& grad)
 {
-  W = Eigen::Map<const Eigen::MatrixXd>(theta.data(), W.rows(), W.cols());
-  const Eigen::MatrixXd Wold = W;
+  W = Eigen::Map<const Matrix_t>(theta.data(), W.rows(), W.cols());
+  const Matrix_t Wold = W;
   // project weights to norm ball (prevents degenerate bases)
   const double alpha = 1.0f;
   const double normeps = 1e-5;
-  Eigen::VectorXd epssumsq =
-      (W.array().square().matrix().rowwise().sum().array() + normeps).matrix();
-  Eigen::VectorXd l2rows = epssumsq.array().sqrt() * alpha;
+  Vector_t epssumsq = (W.array().square().matrix().rowwise().sum().array() + normeps).matrix();
+  Vector_t l2rows = epssumsq.array().sqrt() * alpha;
   W = l2rows.array().inverse().matrix().asDiagonal() * W;
 
-  Eigen::MatrixXd X = (XNorm * Xin).transpose();
-  Eigen::MatrixXd WX = W * X;
-  Eigen::MatrixXd WTWXmX = W.transpose() * WX - X;
-  const double fx = sqrt(WX.array().square().sum() + epsilon);
-  GradW = (WX * WTWXmX.transpose() + W * WTWXmX * X.transpose())
-      + lambda * (WX * X.transpose()) / fx;
+  Matrix_t X = Xin.transpose();
+  Matrix_t WX = W * X;
+  Matrix_t WTWXmX = W.transpose() * WX - X;
+  Matrix_t Fx = (WX.array().square() + epsilon).sqrt().matrix();
+
+  Matrix_t GradW1 = WX.cwiseQuotient(Fx) * Xin;
+  Matrix_t GradW2 = (W * WTWXmX * Xin) + (WX * WTWXmX.transpose());
+  GradW = (GradW1 * lambda) + GradW2;
 
   //unproject gradient
-  Eigen::MatrixXd NewGradW = l2rows.array().inverse().matrix().asDiagonal() * GradW
+  Matrix_t NewGradW = l2rows.array().inverse().matrix().asDiagonal() * GradW
       - (GradW.cwiseProduct(Wold).rowwise().sum().cwiseQuotient(epssumsq).asDiagonal() * W);
 
-  grad = Eigen::Map<Eigen::VectorXd>(NewGradW.data(), NewGradW.rows() * NewGradW.cols());
-  //grad = Eigen::Map<Eigen::VectorXd>(GradW.data(), GradW.rows() * GradW.cols());
-  return lambda * fx + WTWXmX.array().square().sum() * 0.5f;
+  grad = Eigen::Map<Vector_t>(NewGradW.data(), NewGradW.rows() * NewGradW.cols());
+
+  return (Fx.array().sum() * lambda) + (WTWXmX.array().square().sum() / 2.0f);
 }
 
-double SoftICACostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+double SoftICACostFunction::accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y)
 {
-  Eigen::VectorXd theta_tmp = theta;
-  W = Eigen::Map<Eigen::MatrixXd>(theta_tmp.data(), W.rows(), W.cols());
+  Vector_t theta_tmp = theta;
+  W = Eigen::Map<Matrix_t>(theta_tmp.data(), W.rows(), W.cols());
 
   // debug
   std::ofstream ofs("../W.txt");

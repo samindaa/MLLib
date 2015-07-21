@@ -18,19 +18,19 @@ LogisticCostFunction::~LogisticCostFunction()
   delete sigmoid;
 }
 
-Eigen::VectorXd LogisticCostFunction::configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+Vector_t LogisticCostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
   const int numberOfParameters = X.cols();
   std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
-  Eigen::VectorXd theta = (Eigen::VectorXd::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f
+  Vector_t theta = (Vector_t::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f
       * 0.0001f;
   return theta;
 }
 
-double LogisticCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double LogisticCostFunction::evaluate(const Vector_t& theta, const Matrix_t& X,
+    const Matrix_t& Y, Vector_t& grad)
 {
-  Eigen::MatrixXd hx = sigmoid->getFunc(X * theta);
+  Matrix_t hx = sigmoid->getFunc(X * theta);
   grad = X.transpose() * (hx - Y);
   return -( //
   (Y.array() * hx.array().log()) + //
@@ -38,10 +38,10 @@ double LogisticCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen:
   ).sum();
 }
 
-double LogisticCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+double LogisticCostFunction::accuracy(const Vector_t& theta, const Matrix_t& X,
+    const Matrix_t& Y)
 {
-  Eigen::MatrixXd hx = sigmoid->getFunc(X * theta);
+  Matrix_t hx = sigmoid->getFunc(X * theta);
   int correct = 0;
   for (int i = 0; i < hx.rows(); ++i)
   {

@@ -103,6 +103,46 @@ void IEEEHumanDataFunction::configure(Config* config)
       trainingSamplesVector.push_back(12);
 
   }
+  else if (mode == "__LX__")
+  {
+    std::vector<std::string> target1 { true1 };
+    std::vector<std::string> target2 { true2 };
+    std::vector<std::string> target3 { true3 };
+    std::vector<std::string> target4 { true4 };
+
+    std::vector<std::string> target5 { negg1 };
+    std::vector<std::string> target6 { negg2 };
+    std::vector<std::string> target7 { negg3 };
+    std::vector<std::string> target8 { negg4 };
+
+    std::vector<std::string> target9 { negg5 };
+    std::vector<std::string> target10 { negg6 };
+    std::vector<std::string> target11 { negg7 };
+
+    targets.push_back(target1);
+    targets.push_back(target2);
+    targets.push_back(target3);
+    targets.push_back(target4);
+
+    targets.push_back(target5);
+    targets.push_back(target6);
+    targets.push_back(target7);
+    targets.push_back(target8);
+
+    targets.push_back(target9);
+    targets.push_back(target10);
+    targets.push_back(target11);
+
+    for (size_t i = 0; i < targets.size(); ++i)
+      metas.push_back(std::vector<Meta>());
+
+    for (size_t i = 0; i < 4; ++i)
+      trainingSamplesVector.push_back(3);
+
+    for (size_t i = 4; i < targets.size(); ++i)
+      trainingSamplesVector.push_back(12);
+
+  }
   else
   {
     std::cerr << "Option: " << mode << " is not found!" << std::endl;

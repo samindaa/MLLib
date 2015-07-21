@@ -27,34 +27,34 @@ void Poolings::clear()
   }
 }
 
-/*Eigen::VectorXd toVector(const int& imageIndex)
+/*Vector_t toVector(const int& imageIndex)
  {
- Eigen::VectorXd vF(std::pow(outputDim, 2) * numFilters);
+ Vector_t vF(std::pow(outputDim, 2) * numFilters);
  for (auto iter = pooling[imageIndex].begin(); iter != pooling[imageIndex].end(); ++iter)
  vF.segment(iter->first * std::pow(outputDim, 2), std::pow(outputDim, 2)) = //
- Eigen::Map<Eigen::VectorXd>(iter->second->X.data(), iter->second->X.size());
+ Eigen::Map<Vector_t>(iter->second->X.data(), iter->second->X.size());
  return vF;
  }
  */
-void Poolings::toMatrix(Eigen::MatrixXd& ActivationsPooled, const int& imageIndex)
+void Poolings::toMatrix(Matrix_t& ActivationsPooled, const int& imageIndex)
 {
-  //Eigen::VectorXd vF(std::pow(outputDim, 2) * numFilters);
+  //Vector_t vF(std::pow(outputDim, 2) * numFilters);
   const int outputDim2 = std::pow(outputDim, 2);
   for (auto iter = unordered_map[imageIndex].begin(); iter != unordered_map[imageIndex].end();
       ++iter)
     ActivationsPooled.row(imageIndex).segment(iter->first * outputDim2, outputDim2) = //
-        Eigen::Map<Eigen::VectorXd>(iter->second->X.data(), iter->second->X.size());
+        Eigen::Map<Vector_t>(iter->second->X.data(), iter->second->X.size());
   //return vF;
 }
 
-void Poolings::toPoolingSensitivities(const Eigen::MatrixXd& PoolingDelta)
+void Poolings::toPoolingSensitivities(const Matrix_t& PoolingDelta)
 {
   // unpooling operation
   // fixme: parallel
   const int outputDim2 = std::pow(outputDim, 2);
   for (int i = 0; i < PoolingDelta.rows(); ++i)
   {
-    Eigen::VectorXd vec = PoolingDelta.row(i);
+    Vector_t vec = PoolingDelta.row(i);
     for (int f = 0; f < numFilters; ++f)
     {
 
@@ -68,7 +68,7 @@ void Poolings::toPoolingSensitivities(const Eigen::MatrixXd& PoolingDelta)
         unordered_map_sensitivities[i].insert(std::make_pair(f, pooling));
       }
 
-      pooling->X = Eigen::Map<Eigen::MatrixXd>(vec.data() + f * outputDim2, //
+      pooling->X = Eigen::Map<Matrix_t>(vec.data() + f * outputDim2, //
       outputDim, outputDim);
 
     }

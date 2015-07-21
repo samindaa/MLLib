@@ -13,16 +13,9 @@
 class LinearCostFunction: public CostFunction
 {
   public:
-    Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
-    /*Eigen::VectorXd getGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-     const Eigen::MatrixXd& Y);
-     double getCost(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-     const Eigen::MatrixXd& Y);
-     */
-    double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    Vector_t configure(const Matrix_t& X, const Matrix_t& Y);
+    double evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y, Vector_t& grad);
+    double accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y);
 };
 
 #endif /* LINEARCOSTFUNCTION_H_ */

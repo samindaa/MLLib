@@ -7,8 +7,9 @@
 
 #include "LIBLBFGSOptimizer.h"
 
-LIBLBFGSOptimizer::LIBLBFGSOptimizer() :
-    parameters(nullptr), dataFunction(nullptr), costFunction(nullptr)
+LIBLBFGSOptimizer::LIBLBFGSOptimizer(const int& max_iterations) :
+    max_iterations(max_iterations), parameters(nullptr), dataFunction(nullptr), //
+    costFunction(nullptr)
 {
 }
 
@@ -21,11 +22,12 @@ LIBLBFGSOptimizer::~LIBLBFGSOptimizer()
   }
 }
 
-void LIBLBFGSOptimizer::optimize(Eigen::VectorXd& theta, DataFunction* dataFunction,
+void LIBLBFGSOptimizer::optimize(Vector_t& theta, DataFunction* dataFunction,
     CostFunction* costFunction)
 {
-  lbfgs_parameter_t lbfgs_parameter = { 6, 1e-5/*epsilon*/, 0, 1e-5/*delta*/, 200/*max_iterations*/,
-      LBFGS_LINESEARCH_DEFAULT, 40, 1e-20, 1e20, 1e-4, 0.9, 0.9, 1.0e-16, 0.0, 0, -1, };
+  lbfgs_parameter_t lbfgs_parameter = { 6, 1e-5/*epsilon*/, 0, 1e-5/*delta*/,
+      max_iterations/*max_iterations*/, LBFGS_LINESEARCH_DEFAULT, 40, 1e-20, 1e20, 1e-4, 0.9, 0.9,
+      1.0e-16, 0.0, 0, -1, };
 
   lbfgsfloatval_t fx;
   parameters = lbfgs_malloc(theta.size());
@@ -58,8 +60,8 @@ void LIBLBFGSOptimizer::optimize(Eigen::VectorXd& theta, DataFunction* dataFunct
 lbfgsfloatval_t LIBLBFGSOptimizer::evaluate(const lbfgsfloatval_t *x, lbfgsfloatval_t *g,
     const int n, const lbfgsfloatval_t step)
 {
-  Eigen::VectorXd theta = Eigen::VectorXd::Map(x, n, 1);
-  Eigen::VectorXd grad;
+  Vector_t theta = Vector_t::Map(x, n, 1);
+  Vector_t grad;
   double cost = costFunction->evaluate(theta, dataFunction->getTrainingX(),
       dataFunction->getTrainingY(), grad);
 
@@ -75,7 +77,7 @@ int LIBLBFGSOptimizer::progress(const lbfgsfloatval_t *x, const lbfgsfloatval_t 
     const lbfgsfloatval_t step, int n, int k, int ls)
 {
   printf("Iteration %d:\n", k);
-  //Eigen::VectorXd theta = Eigen::VectorXd::Map(x, n, 1);
+  //Vector_t theta = Vector_t::Map(x, n, 1);
   //std::cout << theta.transpose() << std::endl;
   //  printf("  fx = %f, x[0] = %f, x[1] = %f\n", fx, x[0], x[1]);
   printf("  fx = %f \n", fx);

@@ -17,8 +17,8 @@ class ActivationFunction: public EigenFunction
     {
     }
 
-    virtual Eigen::MatrixXd getFunc(const Eigen::MatrixXd& X) =0;
-    virtual Eigen::MatrixXd getGrad(const Eigen::MatrixXd& FX) =0;
+    virtual Matrix_t getFunc(const Matrix_t& X) =0;
+    virtual Matrix_t getGrad(const Matrix_t& FX) =0;
 };
 
 #endif /* ACTIVATIONFUNCTION_H_ */

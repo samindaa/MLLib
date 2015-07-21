@@ -87,7 +87,7 @@ void testSoftmaxCostFunction()
   mnistdf.configure(&config);
 
   SoftmaxCostFunction mnistcf;
-  Eigen::VectorXd theta = mnistcf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
+  Vector_t theta = mnistcf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
 
   mnistcf.getNumGrad(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), 5);
 }
@@ -108,7 +108,7 @@ void testSoftmaxCostFunctionDriver()
 
 void testMNISTBinaryDigitsSupervisedNeuralNetworkCostFunctionDriver()
 {
-  Eigen::VectorXd topology(1);
+  Vector_t topology(1);
   topology << 5;
   SupervisedNeuralNetworkCostFunction mnistcf(topology);
   //SoftmaxCostFunction mnistcf;
@@ -137,18 +137,18 @@ void testMNISTDriver()
 
 void testEigenMap()
 {
-  Eigen::VectorXd theta;
+  Vector_t theta;
   theta.setZero(4 * 5);
   for (int i = 0; i < theta.size(); ++i)
     theta(i) = i;
 
   std::cout << theta << std::endl;
 
-  Eigen::Map<Eigen::MatrixXd> Theta(theta.data(), 4, 5); // reshape
+  Eigen::Map<Matrix_t> Theta(theta.data(), 4, 5); // reshape
 
   std::cout << Theta << std::endl;
 
-  Eigen::VectorXd theta2(Eigen::Map<Eigen::VectorXd>(Theta.data(), 5 * 4));
+  Vector_t theta2(Eigen::Map<Vector_t>(Theta.data(), 5 * 4));
 
   std::cout << theta2 << std::endl;
 
@@ -156,25 +156,25 @@ void testEigenMap()
 
 void testSupervisedNeuralNetworkCostFunction()
 {
-  Eigen::MatrixXd X = Eigen::MatrixXd::Random(5, 3);
-  Eigen::MatrixXd Y = Eigen::MatrixXd::Identity(5, 4);
+  Matrix_t X = Matrix_t::Random(5, 3);
+  Matrix_t Y = Matrix_t::Identity(5, 4);
   Y(4, 3) = 1.0f; //<< fill in the missing I
 
   std::cout << X << std::endl;
   std::cout << Y << std::endl;
 
-  Eigen::VectorXd topology(2);
+  Vector_t topology(2);
   topology << 2, 6;
 
   SupervisedNeuralNetworkCostFunction nn(topology);
-  Eigen::VectorXd theta = nn.configure(X, Y);
+  Vector_t theta = nn.configure(X, Y);
   double error = nn.getNumGrad(theta, X, Y, 20);
   std::cout << "error: " << error << std::endl;
 }
 
 void testMNISTSupervisedNeuralNetworkDriver()
 {
-  Eigen::VectorXd topology(1);
+  Vector_t topology(1);
   topology << 100;
 
   SupervisedNeuralNetworkCostFunction mnistcf(topology, 0.01f);
@@ -213,7 +213,7 @@ void testIEEEHumanDataFunction()
     cf = new SoftmaxCostFunction(0.01f);
   else
   {
-    Eigen::VectorXd topology(1);
+    Vector_t topology(1);
     topology << 5;
     cf = new SupervisedNeuralNetworkCostFunction(topology, 0.01f);
   }
@@ -292,7 +292,7 @@ void testConvolutionAndPool()
       assert((int )i->second.size() == rff.getWeights().cols());
 
     // Validate convoluations
-    Eigen::MatrixXd ConvImages = mnistdf.getTrainingX().topRows<8>();
+    Matrix_t ConvImages = mnistdf.getTrainingX().topRows<8>();
     for (int i = 0; i < 1000; ++i)
     {
       const int filterNum = rand() % rff.getWeights().cols();
@@ -300,14 +300,13 @@ void testConvolutionAndPool()
       const int imageRow = rand() % (configImageDim(0) - rff.getConfig()(0) + 1);
       const int imageCol = rand() % (configImageDim(1) - rff.getConfig()(1) + 1);
 
-      Eigen::VectorXd im = ConvImages.row(imageNum);
-      Eigen::Map<Eigen::MatrixXd> Image(im.data(), configImageDim(0), configImageDim(1));
+      Vector_t im = ConvImages.row(imageNum);
+      Eigen::Map<Matrix_t> Image(im.data(), configImageDim(0), configImageDim(1));
 
-      Eigen::MatrixXd Patch = Image.block(imageRow, imageCol, rff.getConfig()(0),
-          rff.getConfig()(1));
+      Matrix_t Patch = Image.block(imageRow, imageCol, rff.getConfig()(0), rff.getConfig()(1));
 
       // Filter
-      Eigen::Map<Eigen::MatrixXd> W(rff.getWeights().col(filterNum).data(), rff.getConfig()(0),
+      Eigen::Map<Matrix_t> W(rff.getWeights().col(filterNum).data(), rff.getConfig()(0),
           rff.getConfig()(1));
       const double b = rff.getBiases()(filterNum);
 
@@ -357,15 +356,15 @@ void testConvolutionAndPool()
   {
     // test pool function
 
-    Eigen::VectorXd testVec(64);
+    Vector_t testVec(64);
     for (int i = 0; i < testVec.size(); ++i)
       testVec(i) = i + 1;
-    Eigen::Map<Eigen::MatrixXd> TestMatrix(testVec.data(), 8, 8);
+    Eigen::Map<Matrix_t> TestMatrix(testVec.data(), 8, 8);
 
     std::cout << "TestMatrix: " << std::endl;
     std::cout << TestMatrix << std::endl;
 
-    Eigen::MatrixXd ExpectedMatrix(2, 2);
+    Matrix_t ExpectedMatrix(2, 2);
     ExpectedMatrix(0, 0) = TestMatrix.block(0, 0, 4, 4).array().mean();
     ExpectedMatrix(0, 1) = TestMatrix.block(0, 4, 4, 4).array().mean();
     ExpectedMatrix(1, 0) = TestMatrix.block(4, 0, 4, 4).array().mean();
@@ -384,7 +383,7 @@ void testConvolutionAndPool()
 
     assert(pfs->unordered_map.size() == 1);
     assert(pfs->unordered_map[0].size() == 1);
-    Eigen::MatrixXd PX = pfs->unordered_map[0][0]->X;
+    Matrix_t PX = pfs->unordered_map[0][0]->X;
 
     std::cout << "Obtain: " << std::endl;
     std::cout << PX << std::endl;
@@ -409,10 +408,10 @@ void testConvolutionalNeuralNetworkCostFunction()
   const int numClasses = 10; // number of classes to predict
 
   ConvolutionalNeuralNetworkCostFunction cnn(imageDim, filterDim, numFilters, poolDim, numClasses);
-  Eigen::VectorXd theta = cnn.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
+  Vector_t theta = cnn.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
 
   std::cout << "theta: " << theta.size() << std::endl;
-  Eigen::VectorXd grad;
+  Vector_t grad;
   double cost = cnn.evaluate(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), grad);
 
   std::cout << "cost: " << cost << std::endl;
@@ -424,15 +423,15 @@ void testConvolutionalNeuralNetworkCostFunction()
 
 void testKroneckorTensorProduct()
 {
-  Eigen::MatrixXd A(2, 2);
+  Matrix_t A(2, 2);
   A << 1, 2, 3, 4;
   std::cout << A << std::endl;
 
-  Eigen::MatrixXd Ones = Eigen::MatrixXd::Ones(2, 2);
+  Matrix_t Ones = Matrix_t::Ones(2, 2);
   std::cout << A << std::endl;
 
-  Eigen::MatrixXd C(A.rows() * Ones.rows(), A.cols() * Ones.cols());
-  Eigen::KroneckerProduct<Eigen::MatrixXd, Eigen::MatrixXd> Kron(A, Ones);
+  Matrix_t C(A.rows() * Ones.rows(), A.cols() * Ones.cols());
+  Eigen::KroneckerProduct<Matrix_t, Matrix_t> Kron(A, Ones);
   Kron.evalTo(C);
 
   std::cout << C << std::endl;
@@ -471,23 +470,23 @@ double sample(double)
 
 void testNormalRandomWithEigen()
 {
-  Eigen::MatrixXd m = Eigen::MatrixXd::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
+  Matrix_t m = Matrix_t::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
   std::cout << m << std::endl;
 }
 
 void testEigenVectorizedOperations()
 {
-  const Eigen::MatrixXd m0 = Eigen::MatrixXd::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
+  const Matrix_t m0 = Matrix_t::Zero(3, 3).unaryExpr(std::ptr_fun(sample));
   std::cout << "m: " << std::endl;
   std::cout << m0 << std::endl;
 
-  const Eigen::MatrixXd m1 = m0.cwiseProduct(m0);
+  const Matrix_t m1 = m0.cwiseProduct(m0);
   std::cout << "m0: " << std::endl;
   std::cout << m0 << std::endl;
   std::cout << "m1: " << std::endl;
   std::cout << m1 << std::endl;
 
-  const Eigen::MatrixXd m2 = m0.array().square().matrix();
+  const Matrix_t m2 = m0.array().square().matrix();
   std::cout << "m0: " << std::endl;
   std::cout << m0 << std::endl;
   std::cout << "m2: " << std::endl;
@@ -512,7 +511,7 @@ void testWhiteningFunction()
   mnistdf.configure(&config);
 
   WhiteningFunction wf(&config);
-  Eigen::MatrixXd XZCAWhite = wf.gen(mnistdf.getTrainingX());
+  Matrix_t XZCAWhite = wf.gen(mnistdf.getTrainingX());
 
   // debug
   std::ofstream xofs("X100.txt");
@@ -565,29 +564,29 @@ void testSoftICACostFunction()
   mnistdf.configure(&config);
 
   const int numFeatures = 5; // 50
-  const double lambda = 0.0005f;
+  const double lambda = 0.5f;
   const double epsilon = 1e-2;
 
   SoftICACostFunction sf(numFeatures, lambda, epsilon);
 
-  Eigen::VectorXd theta = sf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
+  Vector_t theta = sf.configure(mnistdf.getTrainingX(), mnistdf.getTrainingY());
 
   std::cout << "theta: " << theta.size() << std::endl;
-  Eigen::VectorXd grad;
+  Vector_t grad;
   double cost = sf.evaluate(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), grad);
 
   std::cout << "cost: " << cost << std::endl;
   std::cout << "grad: " << grad.size() << std::endl;
 
-  double error = sf.getNumGrad(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY());
+  double error = sf.getNumGrad(theta, mnistdf.getTrainingX(), mnistdf.getTrainingY(), 10);
   std::cout << "error: " << error << std::endl;
 
 }
 
 void testSoftICADriver()
 {
-  const int numPatches = 10000;
-  const int patchWidth = 9;
+  const int numPatches = 200000; // 200000 10000
+  const int patchWidth = 8;
   MNISTSamplePatchesDataFunction mnistdf(numPatches, patchWidth);
   Config config;
   config.setValue("addBiasTerm", false);
@@ -602,7 +601,7 @@ void testSoftICADriver()
 
   SoftICACostFunction sfc(numFeatures, lambda, epsilon);
 
-  LIBLBFGSOptimizer lbfgs;
+  LIBLBFGSOptimizer lbfgs(1000);
   Driver drv(&config, &mnistdf, &sfc, &lbfgs);
   drv.drive();
 
@@ -650,17 +649,30 @@ void testStopWatch()
 
 void testEigenConstMap()
 {
-  Eigen::VectorXd x(4);
+  Vector_t x(4);
   x << 1, 2, 3, 4;
   std::cout << x << std::endl;
 
-  const Eigen::VectorXd y = x;
+  const Vector_t y = x;
 
   std::cout << y << std::endl;
 
-  Eigen::MatrixXd X = Eigen::Map<const Eigen::MatrixXd>(y.data(), 2, 2);
+  Matrix_t X = Eigen::Map<const Matrix_t>(y.data(), 2, 2);
 
   std::cout << X << std::endl;
+}
+
+void testMatrix_t()
+{
+  Matrix_t test(2, 3);
+
+  Vector_t test2 = Vector_t::Random(5);
+
+  std::cout << test2 << std::endl;
+
+  Matrix_t Test2 = test2.replicate(1, 3);
+
+  std::cout << Test2 << std::endl;
 }
 
 int main()
@@ -670,7 +682,7 @@ int main()
 //  testMNISTDataFunction();
 //  testMNISTBinaryDigitsDriver();
 //  testSoftmaxCostFunction();
-  testSoftmaxCostFunctionDriver();
+//  testSoftmaxCostFunctionDriver();
 //  testMNISTBinaryDigitsSupervisedNeuralNetworkCostFunctionDriver();
 //  testMNISTDriver();
 //  testEigenMap();
@@ -686,12 +698,13 @@ int main()
 //  testWhiteningFunction();
 //  testMNISTSamplePatchesDataFunction();
 //  testSoftICACostFunction();
-//  testSoftICADriver();
+  testSoftICADriver();
 //  testEigenVectorizedOperations();
 //  testNaturalImageDataFunction();
 //  testSoftICADriver2();
 //  testStopWatch();
 //  testEigenConstMap();
+//  testMatrix_t();
   std::cout << "*** end-- ***" << std::endl;
   return 0;
 }

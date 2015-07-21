@@ -18,19 +18,16 @@ class SoftICACostFunction: public CostFunction
     int numFeatures; // number of filter banks to learn
     double lambda; // sparsity cost
     double epsilon; // epsilon to use in square-sqrt nonlinearity
-    Eigen::MatrixXd W;
-    Eigen::MatrixXd GradW;
-    Eigen::MatrixXd XNorm;
+    Matrix_t W;
+    Matrix_t GradW;
 
   public:
     SoftICACostFunction(const int& numFeatures, const double& lambda, const double& epsilon);
     ~SoftICACostFunction();
 
-    Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
-    double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    Vector_t configure(const Matrix_t& X, const Matrix_t& Y);
+    double evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y, Vector_t& grad);
+    double accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y);
 
   private:
     static double sample(double)

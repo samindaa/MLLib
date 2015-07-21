@@ -13,7 +13,7 @@
 class SGDOptimizer: public Optimizer
 {
   public:
-    void optimize(Eigen::VectorXd& theta, DataFunction* dataFunction, CostFunction* costFunction);
+    void optimize(Vector_t& theta, DataFunction* dataFunction, CostFunction* costFunction);
 };
 
 #endif /* SGDOPTIMIZER_H_ */

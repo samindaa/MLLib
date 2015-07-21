@@ -87,8 +87,8 @@ Poolings* MeanPoolFunction::pool(const Convolutions* convolutedFunctions, const 
 void MeanPoolFunction::delta_pool(const int& poolDim)
 {
 
-  Eigen::MatrixXd Ones = Eigen::MatrixXd::Ones(poolDim, poolDim);
-  Eigen::MatrixXd Tmp(outputDim * poolDim, outputDim * poolDim);
+  Matrix_t Ones = Matrix_t::Ones(poolDim, poolDim);
+  Matrix_t Tmp(outputDim * poolDim, outputDim * poolDim);
   const double fac = 1.0f / std::pow(poolDim, 2);
 
   for (auto iter = poolings->unordered_map_sensitivities.begin();
@@ -100,7 +100,7 @@ void MeanPoolFunction::delta_pool(const int& poolDim)
     for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
     {
 
-      Eigen::KroneckerProduct<Eigen::MatrixXd, Eigen::MatrixXd> Kron(iter2->second->X, Ones);
+      Eigen::KroneckerProduct<Matrix_t, Matrix_t> Kron(iter2->second->X, Ones);
       Kron.evalTo(Tmp);
       iter2->second->X = Tmp;
       iter2->second->X.array() *= fac;

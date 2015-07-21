@@ -21,7 +21,7 @@
 
 void HousingDataFunction::configure(Config* config)
 {
-  Eigen::MatrixXd TmpData;
+  Matrix_t TmpData;
   //<< housing dataset
   const std::string housingstr = config->getValue("housing.data", std::string("."));
   std::ifstream in(housingstr.c_str());

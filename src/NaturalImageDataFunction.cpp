@@ -139,8 +139,8 @@ void NaturalImageDataFunction::configure(Config* config)
       //    << std::endl;
     }
 
-    Eigen::MatrixXd P = unordered_map[img]->X.block(y, x, patchWidth, patchWidth);
-    Eigen::Map<Eigen::VectorXd> p(P.data(), pow(patchWidth, 2));
+    Matrix_t P = unordered_map[img]->X.block(y, x, patchWidth, patchWidth);
+    Eigen::Map<Vector_t> p(P.data(), pow(patchWidth, 2));
     trainingX.row(i) = p.transpose();
   }
 

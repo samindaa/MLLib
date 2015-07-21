@@ -17,16 +17,16 @@ class CostFunction : public EigenFunction
     {
     }
 
-    virtual Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) =0;
-    virtual double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad) =0;
-    virtual double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y) =0;
+    virtual Vector_t configure(const Matrix_t& X, const Matrix_t& Y) =0;
+    virtual double evaluate(const Vector_t& theta, const Matrix_t& X,
+        const Matrix_t& Y, Vector_t& grad) =0;
+    virtual double accuracy(const Vector_t& theta, const Matrix_t& X,
+        const Matrix_t& Y) =0;
 
-    double getNumGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
-    double getNumGrad(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, const int& numChecks);
+    double getNumGrad(const Vector_t& theta, const Matrix_t& X,
+        const Matrix_t& Y);
+    double getNumGrad(const Vector_t& theta, const Matrix_t& X,
+        const Matrix_t& Y, const int& numChecks);
 };
 
 #endif /* COSTFUNCTION_H_ */

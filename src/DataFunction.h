@@ -14,15 +14,15 @@
 class DataFunction: public EigenFunction
 {
   protected:
-    Eigen::MatrixXd trainingX;
-    Eigen::MatrixXd trainingY;
+    Matrix_t trainingX;
+    Matrix_t trainingY;
 
-    Eigen::MatrixXd testingX;
-    Eigen::MatrixXd testingY;
+    Matrix_t testingX;
+    Matrix_t testingY;
 
     // mean and stdd calculated from the training data
-    Eigen::VectorXd mean;
-    Eigen::VectorXd stdd;
+    Vector_t mean;
+    Vector_t stdd;
 
   public:
     DataFunction();
@@ -30,10 +30,10 @@ class DataFunction: public EigenFunction
 
     virtual void configure(Config* config) =0;
 
-    Eigen::MatrixXd& getTrainingX();
-    Eigen::MatrixXd& getTestingX();
-    Eigen::MatrixXd& getTrainingY();
-    Eigen::MatrixXd& getTestingY();
+    Matrix_t& getTrainingX();
+    Matrix_t& getTestingX();
+    Matrix_t& getTrainingY();
+    Matrix_t& getTestingY();
 
   protected:
     void trainingMeanAndStdd();

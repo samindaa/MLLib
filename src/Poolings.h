@@ -25,8 +25,8 @@ class Poolings: public EigenFunction
     Poolings(const int& numFilters, const int& outputDim);
     ~Poolings();
 
-    void toMatrix(Eigen::MatrixXd& ActivationsPooled, const int& imageIndex);
-    void toPoolingSensitivities(const Eigen::MatrixXd& PoolingDelta);
+    void toMatrix(Matrix_t& ActivationsPooled, const int& imageIndex);
+    void toPoolingSensitivities(const Matrix_t& PoolingDelta);
     void clear();
 };
 

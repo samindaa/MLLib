@@ -44,7 +44,7 @@ class ConvolutionalNeuralNetworkCostFunction: public CostFunction
         void configure()
         {
           config << filterDim, filterDim;
-          Weights = Eigen::MatrixXd::Zero(filterDim * filterDim, numFilters).unaryExpr(
+          Weights = Matrix_t::Zero(filterDim * filterDim, numFilters).unaryExpr(
               std::ptr_fun(CNNFilterFunction::sample));
           Weights.array() *= 1e-1;
           biases.setZero(numFilters);
@@ -70,19 +70,19 @@ class ConvolutionalNeuralNetworkCostFunction: public CostFunction
     PoolingFunction* poolingFunction;
     ActivationFunction* softmaxActivationFunction;
 
-    Eigen::MatrixXd Wd;
-    Eigen::VectorXd bd;
+    Matrix_t Wd;
+    Vector_t bd;
 
-    Eigen::MatrixXd WdGrad;
-    Eigen::VectorXd bdGrad;
+    Matrix_t WdGrad;
+    Vector_t bdGrad;
 
-    Eigen::MatrixXd ActivationsPooled;
+    Matrix_t ActivationsPooled;
 
-    Eigen::MatrixXd OutputA;
-    Eigen::MatrixXd OutputZ;
+    Matrix_t OutputA;
+    Matrix_t OutputZ;
 
-    Eigen::MatrixXd OutputDelta;
-    Eigen::MatrixXd PoolingDelta;
+    Matrix_t OutputDelta;
+    Matrix_t PoolingDelta;
 
     int numberOfParameters;
     double LAMBDA;
@@ -92,16 +92,14 @@ class ConvolutionalNeuralNetworkCostFunction: public CostFunction
         const int& numFilters, const int& poolDim, const int& numClasses);
     ~ConvolutionalNeuralNetworkCostFunction();
 
-    Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
-    double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    Vector_t configure(const Matrix_t& X, const Matrix_t& Y);
+    double evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y, Vector_t& grad);
+    double accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y);
 
   private:
-    void toTheta(Eigen::VectorXd& theta);
-    void toGrad(Eigen::VectorXd& grad);
-    void toWeights(const Eigen::VectorXd& theta);
+    void toTheta(Vector_t& theta);
+    void toGrad(Vector_t& grad);
+    void toWeights(const Vector_t& theta);
 
 };
 

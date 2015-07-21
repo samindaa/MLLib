@@ -16,18 +16,18 @@ WhiteningFunction::~WhiteningFunction()
 {
 }
 
-Eigen::MatrixXd WhiteningFunction::gen(const Eigen::MatrixXd& X)
+Matrix_t WhiteningFunction::gen(const Matrix_t& X)
 {
-  Eigen::MatrixXd Xr = X;
+  Matrix_t Xr = X;
   if (config->getValue("zeroMean", false)) // for each row: assuming the statistics of rows are similar
     Xr.colwise() -= Xr.rowwise().mean();
 
   if (config->getValue("pcaWhitening", false))
   {
-    Eigen::MatrixXd Sigma = Xr.transpose() * Xr / double(Xr.rows());
-    Eigen::JacobiSVD<Eigen::MatrixXd> svd(Sigma, Eigen::ComputeFullU);
-    const Eigen::MatrixXd& U = svd.matrixU();
-    const Eigen::VectorXd& S = svd.singularValues();
+    Matrix_t Sigma = Xr.transpose() * Xr / double(Xr.rows());
+    Eigen::JacobiSVD<Matrix_t> svd(Sigma, Eigen::ComputeFullU);
+    const Matrix_t& U = svd.matrixU();
+    const Vector_t& S = svd.singularValues();
 
     Xr = Xr * U * ((S.array() + //
         config->getValue("epsilon", 0.01f)).sqrt().inverse().matrix().asDiagonal());
@@ -40,15 +40,15 @@ Eigen::MatrixXd WhiteningFunction::gen(const Eigen::MatrixXd& X)
   return Xr;
 }
 
-void WhiteningFunction::zeroMean(Eigen::MatrixXd& X)
+void WhiteningFunction::zeroMean(Matrix_t& X)
 {
 }
 
-void WhiteningFunction::pcaWhitening(Eigen::MatrixXd& X)
+void WhiteningFunction::pcaWhitening(Matrix_t& X)
 {
 }
 
-void WhiteningFunction::zcaWhitening(Eigen::MatrixXd& X)
+void WhiteningFunction::zcaWhitening(Matrix_t& X)
 {
 }
 

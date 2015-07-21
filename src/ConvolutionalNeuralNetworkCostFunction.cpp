@@ -30,8 +30,7 @@ ConvolutionalNeuralNetworkCostFunction::~ConvolutionalNeuralNetworkCostFunction(
   delete softmaxActivationFunction;
 }
 
-Eigen::VectorXd ConvolutionalNeuralNetworkCostFunction::configure(const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+Vector_t ConvolutionalNeuralNetworkCostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
   assert(filterDim < imageDim);
 
@@ -47,7 +46,7 @@ Eigen::VectorXd ConvolutionalNeuralNetworkCostFunction::configure(const Eigen::M
 
   const double r = sqrt(6.0f) / sqrt(numClasses + hiddenSize + 1.0f);
 
-  Wd = Eigen::MatrixXd::Random(hiddenSize, numClasses) * r;
+  Wd = Matrix_t::Random(hiddenSize, numClasses) * r;
   bd.setZero(numClasses);
 
   WdGrad.setZero(hiddenSize, numClasses);
@@ -60,7 +59,7 @@ Eigen::VectorXd ConvolutionalNeuralNetworkCostFunction::configure(const Eigen::M
 
   std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
 
-  Eigen::VectorXd theta(numberOfParameters);
+  Vector_t theta(numberOfParameters);
 
   toTheta(theta);
 
@@ -68,12 +67,12 @@ Eigen::VectorXd ConvolutionalNeuralNetworkCostFunction::configure(const Eigen::M
 
 }
 
-void ConvolutionalNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
+void ConvolutionalNeuralNetworkCostFunction::toTheta(Vector_t& theta)
 {
   int j = 0;
 
   // Wc
-  Eigen::VectorXd thetaLayerWc(Eigen::Map<Eigen::VectorXd>(cnnFilterFunction->getWeights().data(), //
+  Vector_t thetaLayerWc(Eigen::Map<Vector_t>(cnnFilterFunction->getWeights().data(), //
       cnnFilterFunction->getWeights().rows() * cnnFilterFunction->getWeights().cols()));
   theta.segment(j, thetaLayerWc.size()) = thetaLayerWc;
   j += thetaLayerWc.size();
@@ -82,7 +81,7 @@ void ConvolutionalNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
   j += cnnFilterFunction->getBiases().size();
 
   // Wd
-  Eigen::VectorXd thetaLayerWd(Eigen::Map<Eigen::VectorXd>(Wd.data(), Wd.rows() * Wd.cols()));
+  Vector_t thetaLayerWd(Eigen::Map<Vector_t>(Wd.data(), Wd.rows() * Wd.cols()));
   theta.segment(j, thetaLayerWd.size()) = thetaLayerWd;
   j += thetaLayerWd.size();
   // bd
@@ -93,13 +92,13 @@ void ConvolutionalNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
 
 }
 
-void ConvolutionalNeuralNetworkCostFunction::toGrad(Eigen::VectorXd& grad)
+void ConvolutionalNeuralNetworkCostFunction::toGrad(Vector_t& grad)
 {
   int j = 0;
 
   // Wc
-  Eigen::VectorXd thetaLayerWc(
-      Eigen::Map<Eigen::VectorXd>(cnnFilterFunction->getWeightsGrad().data(),
+  Vector_t thetaLayerWc(
+      Eigen::Map<Vector_t>(cnnFilterFunction->getWeightsGrad().data(),
           cnnFilterFunction->getWeightsGrad().rows() * cnnFilterFunction->getWeightsGrad().cols()));
   grad.segment(j, thetaLayerWc.size()) = thetaLayerWc;
   j += thetaLayerWc.size();
@@ -108,8 +107,7 @@ void ConvolutionalNeuralNetworkCostFunction::toGrad(Eigen::VectorXd& grad)
   j += cnnFilterFunction->getBiasesGrad().size();
 
   // Wd
-  Eigen::VectorXd thetaLayerWd(
-      Eigen::Map<Eigen::VectorXd>(WdGrad.data(), WdGrad.rows() * WdGrad.cols()));
+  Vector_t thetaLayerWd(Eigen::Map<Vector_t>(WdGrad.data(), WdGrad.rows() * WdGrad.cols()));
   grad.segment(j, thetaLayerWd.size()) = thetaLayerWd;
   j += thetaLayerWd.size();
   // bd
@@ -119,32 +117,31 @@ void ConvolutionalNeuralNetworkCostFunction::toGrad(Eigen::VectorXd& grad)
   assert(j == numberOfParameters);
 }
 
-void ConvolutionalNeuralNetworkCostFunction::toWeights(const Eigen::VectorXd& theta)
+void ConvolutionalNeuralNetworkCostFunction::toWeights(const Vector_t& theta)
 {
-  Eigen::VectorXd theta_tmp = theta;
   int j = 0;
 
   // Wc
-  cnnFilterFunction->getWeights() = Eigen::Map<Eigen::MatrixXd>(theta_tmp.data() + j,
+  cnnFilterFunction->getWeights() = Eigen::Map<const Matrix_t>(theta.data() + j,
       cnnFilterFunction->getWeights().rows(), cnnFilterFunction->getWeights().cols());
   j += cnnFilterFunction->getWeights().size();
   // bc
-  cnnFilterFunction->getBiases() = Eigen::Map<Eigen::VectorXd>(theta_tmp.data() + j,
+  cnnFilterFunction->getBiases() = Eigen::Map<const Vector_t>(theta.data() + j,
       cnnFilterFunction->getBiases().size());
   j += cnnFilterFunction->getBiases().size();
 
   // Wd
-  Wd = Eigen::Map<Eigen::MatrixXd>(theta_tmp.data() + j, Wd.rows(), Wd.cols());
+  Wd = Eigen::Map<const Matrix_t>(theta.data() + j, Wd.rows(), Wd.cols());
   j += Wd.size();
   // bd
-  bd = Eigen::Map<Eigen::VectorXd>(theta_tmp.data() + j, bd.size());
+  bd = Eigen::Map<const Vector_t>(theta.data() + j, bd.size());
   j += bd.size();
 
   assert(j == numberOfParameters);
 }
 
-double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double ConvolutionalNeuralNetworkCostFunction::evaluate(const Vector_t& theta, const Matrix_t& X,
+    const Matrix_t& Y, Vector_t& grad)
 {
   /* STEP 1a: Forward Propagation
    In this step you will forward propagate the input through the
@@ -210,7 +207,7 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
    for Softmax layer
    */
 
-  ActivationsPooled = Eigen::MatrixXd::Zero(activationsPooled->unordered_map.size(),
+  ActivationsPooled = Matrix_t::Zero(activationsPooled->unordered_map.size(),
       std::pow(outputDim, 2) * numFilters); // fixme:
 
   for (auto iter = activationsPooled->unordered_map.begin();
@@ -329,8 +326,8 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
     for (auto iter2 = iter->second.begin(); iter2 != iter->second.end(); ++iter2)
     {
 
-      Eigen::MatrixXd UnPool = iter2->second->X;
-      Eigen::MatrixXd Z = activations->unordered_map[iter->first][iter2->first]->X;
+      Matrix_t UnPool = iter2->second->X;
+      Matrix_t Z = activations->unordered_map[iter->first][iter2->first]->X;
       iter2->second->X = sigmoidActivationFunction->getGrad(Z).cwiseProduct(UnPool);
 
       if (DEBUG)
@@ -352,18 +349,18 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
   cnnFilterFunction->getBiasesGrad().setZero(cnnFilterFunction->getBiasesGrad().size());
   cnnFilterFunction->getWeightsGrad().setZero(cnnFilterFunction->getWeightsGrad().rows(),
       cnnFilterFunction->getWeightsGrad().cols());
-  Eigen::MatrixXd Conv;
+  Matrix_t Conv;
   // Each image
   for (int i = 0; i < X.rows(); ++i)
   {
-    Eigen::VectorXd x = X.row(i);
-    Eigen::Map<Eigen::MatrixXd> I(x.data(), config(0), config(1));
+    Vector_t x = X.row(i);
+    Eigen::Map<Matrix_t> I(x.data(), config(0), config(1));
 
     auto& iter = activationsPooled->unordered_map_sensitivities[i];
 
     for (auto iter2 = iter.begin(); iter2 != iter.end(); ++iter2)
     {
-      Eigen::MatrixXd& W = iter2->second->X;
+      Matrix_t& W = iter2->second->X;
 
       cnnFilterFunction->getBiasesGrad()(iter2->first) += W.sum();
 
@@ -381,7 +378,7 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
         std::cout << "conv2: " << Conv.rows() << " x " << Conv.cols() << std::endl;
       }
 
-      Eigen::Map<Eigen::VectorXd> tmp(Conv.data(), Conv.size());
+      Eigen::Map<Vector_t> tmp(Conv.data(), Conv.size());
       cnnFilterFunction->getWeightsGrad().col(iter2->first) += tmp;
     }
   }
@@ -394,8 +391,8 @@ double ConvolutionalNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& t
       + (theta.array().square().sum()) * LAMBDA * 0.5f;;
 }
 
-double ConvolutionalNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X0, const Eigen::MatrixXd& Y)
+double ConvolutionalNeuralNetworkCostFunction::accuracy(const Vector_t& theta, const Matrix_t& X0,
+    const Matrix_t& Y)
 {
   toWeights(theta);
 
@@ -407,10 +404,10 @@ double ConvolutionalNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& t
 
   for (int i = 0; i < X0.rows(); ++i)
   {
-    Eigen::MatrixXd X = X0.row(i);
+    Matrix_t X = X0.row(i);
     Convolutions* activations = convolutionFunction->conv(X, config);
     Poolings* activationsPooled = poolingFunction->pool(activations, poolDim);
-    ActivationsPooled = Eigen::MatrixXd::Zero(activationsPooled->unordered_map.size(),
+    ActivationsPooled = Matrix_t::Zero(activationsPooled->unordered_map.size(),
         std::pow(outputDim, 2) * numFilters); // fixme:
     for (auto iter = activationsPooled->unordered_map.begin();
         iter != activationsPooled->unordered_map.end(); ++iter)

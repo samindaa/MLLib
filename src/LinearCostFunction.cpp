@@ -8,24 +8,22 @@
 #include "LinearCostFunction.h"
 #include <iostream>
 
-Eigen::VectorXd LinearCostFunction::configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+Vector_t LinearCostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
   const int numberOfParameters = X.cols();
   std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
-  Eigen::VectorXd theta = (Eigen::VectorXd::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f
-      * 0.001f;
+  Vector_t theta = (Vector_t::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f * 0.001f;
   return theta;
 }
 
-double LinearCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double LinearCostFunction::evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y,
+    Vector_t& grad)
 {
   grad = X.transpose() * (X * theta - Y);
   return ((X * theta - Y).array().square().sum()) * 0.5f;
 }
 
-double LinearCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+double LinearCostFunction::accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y)
 {
   return sqrt((X * theta - Y).array().square().rowwise().sum().mean());
 }

@@ -8,8 +8,8 @@
 #include "SupervisedNeuralNetworkCostFunction.h"
 #include <iostream>
 
-SupervisedNeuralNetworkCostFunction::SupervisedNeuralNetworkCostFunction(
-    const Eigen::VectorXd& topology, const double& LAMBDA) :
+SupervisedNeuralNetworkCostFunction::SupervisedNeuralNetworkCostFunction(const Vector_t& topology,
+    const double& LAMBDA) :
     topology(topology), numberOfParameters(0), LAMBDA(LAMBDA)
 {
 }
@@ -22,8 +22,7 @@ SupervisedNeuralNetworkCostFunction::~SupervisedNeuralNetworkCostFunction()
   layers.clear();
 }
 
-Eigen::VectorXd SupervisedNeuralNetworkCostFunction::configure(const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+Vector_t SupervisedNeuralNetworkCostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
   SupervisedNeuralNetworkLayer* firstLayer = new SupervisedNeuralNetworkLayer(X.cols(),
       SupervisedNeuralNetworkLayer::NULL_FUNCTION);
@@ -43,8 +42,8 @@ Eigen::VectorXd SupervisedNeuralNetworkCostFunction::configure(const Eigen::Matr
     numberOfParameters += hiddenLayer->W.size();
     numberOfParameters += hiddenLayer->b.size();
   }
-  finalLayer->W = Eigen::MatrixXd::Random(layers[layers.size() - 1]->size, finalLayer->size);
-  finalLayer->b = Eigen::VectorXd::Random(finalLayer->size);
+  finalLayer->W = Matrix_t::Random(layers[layers.size() - 1]->size, finalLayer->size);
+  finalLayer->b = Vector_t::Random(finalLayer->size);
   finalLayer->W *= 0.001f;
   finalLayer->b *= 0.001f;
   layers.push_back(finalLayer);
@@ -61,18 +60,18 @@ Eigen::VectorXd SupervisedNeuralNetworkCostFunction::configure(const Eigen::Matr
 
   std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
 
-  Eigen::VectorXd theta(numberOfParameters);
+  Vector_t theta(numberOfParameters);
   toTheta(theta);
 
   return theta;
 }
 
-void SupervisedNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
+void SupervisedNeuralNetworkCostFunction::toTheta(Vector_t& theta)
 {
   int j = 0;
   for (size_t i = 1; i < layers.size(); ++i)
   {
-    Eigen::VectorXd thetaLayer(Eigen::Map<Eigen::VectorXd>(layers[i]->W.data(), //
+    Vector_t thetaLayer(Eigen::Map<Vector_t>(layers[i]->W.data(), //
         layers[i]->W.cols() * layers[i]->W.rows()));
 
     theta.segment(j, thetaLayer.size()) = thetaLayer;
@@ -83,12 +82,12 @@ void SupervisedNeuralNetworkCostFunction::toTheta(Eigen::VectorXd& theta)
   assert(j == numberOfParameters);
 }
 
-void SupervisedNeuralNetworkCostFunction::toGradient(Eigen::VectorXd& grad)
+void SupervisedNeuralNetworkCostFunction::toGradient(Vector_t& grad)
 {
   int j = 0;
   for (size_t i = 1; i < layers.size(); ++i)
   {
-    Eigen::VectorXd thetaLayer(Eigen::Map<Eigen::VectorXd>(layers[i]->GradientW.data(), //
+    Vector_t thetaLayer(Eigen::Map<Vector_t>(layers[i]->GradientW.data(), //
         layers[i]->GradientW.cols() * layers[i]->GradientW.rows()));
 
     grad.segment(j, thetaLayer.size()) = thetaLayer;
@@ -100,22 +99,21 @@ void SupervisedNeuralNetworkCostFunction::toGradient(Eigen::VectorXd& grad)
 
 }
 
-void SupervisedNeuralNetworkCostFunction::toWeights(const Eigen::VectorXd& theta)
+void SupervisedNeuralNetworkCostFunction::toWeights(const Vector_t& theta)
 {
-  Eigen::VectorXd theta_tmp = theta;
   int j = 0;
   for (size_t i = 1; i < layers.size(); ++i)
   {
-    layers[i]->W = Eigen::Map<Eigen::MatrixXd>(theta_tmp.data() + j, layers[i]->W.rows(),
+    layers[i]->W = Eigen::Map<const Matrix_t>(theta.data() + j, layers[i]->W.rows(),
         layers[i]->W.cols());
     j += layers[i]->W.size();
-    layers[i]->b = Eigen::Map<Eigen::VectorXd>(theta_tmp.data() + j, layers[i]->b.size());
+    layers[i]->b = Eigen::Map<const Vector_t>(theta.data() + j, layers[i]->b.size());
     j += layers[i]->b.size();
   }
   assert(j == numberOfParameters);
 }
 
-void SupervisedNeuralNetworkCostFunction::forwardPass(const Eigen::MatrixXd& X)
+void SupervisedNeuralNetworkCostFunction::forwardPass(const Matrix_t& X)
 {
   // Input layer
   layers[0]->Z = X;
@@ -129,8 +127,8 @@ void SupervisedNeuralNetworkCostFunction::forwardPass(const Eigen::MatrixXd& X)
 
 }
 
-double SupervisedNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double SupervisedNeuralNetworkCostFunction::evaluate(const Vector_t& theta, const Matrix_t& X,
+    const Matrix_t& Y, Vector_t& grad)
 {
   toWeights(theta);
   forwardPass(X);
@@ -144,7 +142,7 @@ double SupervisedNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& thet
   --j;
   for (; j > 0; --j)
   {
-    Eigen::MatrixXd DeltaWT = layers[j + 1]->Delta * layers[j + 1]->W.transpose();
+    Matrix_t DeltaWT = layers[j + 1]->Delta * layers[j + 1]->W.transpose();
     layers[j]->Delta = layers[j]->function->getGrad(layers[j]->Z).cwiseProduct(DeltaWT);
 
     layers[j]->GradientW = layers[j - 1]->Z.transpose() * layers[j]->Delta;
@@ -160,8 +158,8 @@ double SupervisedNeuralNetworkCostFunction::evaluate(const Eigen::VectorXd& thet
 
 }
 
-double SupervisedNeuralNetworkCostFunction::accuracy(const Eigen::VectorXd& theta,
-    const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+double SupervisedNeuralNetworkCostFunction::accuracy(const Vector_t& theta, const Matrix_t& X,
+    const Matrix_t& Y)
 {
   toWeights(theta);
   forwardPass(X);

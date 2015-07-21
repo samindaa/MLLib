@@ -12,7 +12,7 @@
 
 void MNISTDataFunction::configure(Config* config)
 {
-  Eigen::MatrixXd tmpTrX, tmpTrY, tmpTeX, tmpTeY;
+  Matrix_t tmpTrX, tmpTrY, tmpTeX, tmpTeY;
 
   // Training
   imagesLabelsLoad(config->getValue(trainImagesKeyMnist, std::string(trainImagesKeyMnist)), //
@@ -53,8 +53,8 @@ void MNISTDataFunction::configure(Config* config)
 
 }
 
-void MNISTDataFunction::configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y)
+void MNISTDataFunction::configurePolicy(const Matrix_t& tmpX, Matrix_t& X,
+    const Matrix_t& tmpY, Matrix_t& Y)
 {
   X = tmpX;
   Y = tmpY;
@@ -74,7 +74,7 @@ static int reverseInt(int i)
 }
 
 void MNISTDataFunction::imagesLabelsLoad(const std::string& imagesfilename,
-    const std::string& labelsfilename, Eigen::MatrixXd& images, Eigen::MatrixXd& labels,
+    const std::string& labelsfilename, Matrix_t& images, Matrix_t& labels,
     const bool& debugMode)
 {
   std::ifstream ifsImages(imagesfilename.c_str(), std::ios::binary);

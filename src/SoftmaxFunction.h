@@ -13,8 +13,8 @@
 class SoftmaxFunction: public ActivationFunction
 {
   public:
-    Eigen::MatrixXd getFunc(const Eigen::MatrixXd& X);
-    Eigen::MatrixXd getGrad(const Eigen::MatrixXd& FX);
+    Matrix_t getFunc(const Matrix_t& X);
+    Matrix_t getGrad(const Matrix_t& FX);
 };
 
 #endif /* SOFTMAXFUNCTION_H_ */

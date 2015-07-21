@@ -20,20 +20,20 @@ ConvolutionFunction::~ConvolutionFunction()
   clear();
 }
 
-Convolutions* ConvolutionFunction::conv(const Eigen::MatrixXd& X, const Eigen::Vector2i& config)
+Convolutions* ConvolutionFunction::conv(const Matrix_t& X, const Eigen::Vector2i& config)
 {
 #pragma omp parallel for
   for (int i = 0; i < X.rows(); ++i)
   {
-    Eigen::VectorXd x = X.row(i);
-    Eigen::Map<Eigen::MatrixXd> I(x.data(), config(0), config(1));
+    Vector_t x = X.row(i);
+    Eigen::Map<Matrix_t> I(x.data(), config(0), config(1));
     for (int j = 0; j < filterFunction->getWeights().cols(); ++j)
     {
-      Eigen::VectorXd wj = filterFunction->getWeights().col(j);
+      Vector_t wj = filterFunction->getWeights().col(j);
       const double bj = filterFunction->getBiases()(j);
 
       // Filter
-      Eigen::Map<Eigen::MatrixXd> Wj(wj.data(), filterFunction->getConfig()(0),
+      Eigen::Map<Matrix_t> Wj(wj.data(), filterFunction->getConfig()(0),
           filterFunction->getConfig()(1));
 
       // Do the valid convolution
@@ -41,15 +41,15 @@ Convolutions* ConvolutionFunction::conv(const Eigen::MatrixXd& X, const Eigen::V
       //const int limitRows = I.rows() - Wj.rows() + 1;
       //const int limitCols = I.cols() - Wj.cols() + 1;
 
-      //Eigen::MatrixXd X_tmp(limitRows, limitCols);
-      Eigen::MatrixXd X_tmp;
+      //Matrix_t X_tmp(limitRows, limitCols);
+      Matrix_t X_tmp;
       validConv(X_tmp, I, Wj, bj);
 
       /*for (int row = 0; row < limitRows; ++row)
        {
        for (int col = 0; col < limitCols; ++col)
        {
-       Eigen::MatrixXd Patch = I.block(row, col, Wj.rows(), Wj.cols());
+       Matrix_t Patch = I.block(row, col, Wj.rows(), Wj.cols());
        X_tmp(row, col) = Patch.cwiseProduct(Wj).sum() + bj;
        }
        }*/
@@ -76,8 +76,8 @@ Convolutions* ConvolutionFunction::conv(const Eigen::MatrixXd& X, const Eigen::V
   return convolutions;
 }
 
-void ConvolutionFunction::validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd& I,
-    const Eigen::MatrixXd& W, const double& b)
+void ConvolutionFunction::validConv(Matrix_t& Conv, const Matrix_t& I,
+    const Matrix_t& W, const double& b)
 {
   const int limitRows = I.rows() - W.rows() + 1;
   const int limitCols = I.cols() - W.cols() + 1;
@@ -88,7 +88,7 @@ void ConvolutionFunction::validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd
   {
     for (int col = 0; col < limitCols; ++col)
     {
-      Eigen::MatrixXd Patch = I.block(row, col, W.rows(), W.cols());
+      Matrix_t Patch = I.block(row, col, W.rows(), W.cols());
       Conv(row, col) = Patch.cwiseProduct(W).sum() + b;
     }
   }

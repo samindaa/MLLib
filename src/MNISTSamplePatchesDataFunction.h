@@ -19,7 +19,6 @@ class MNISTSamplePatchesDataFunction: public MNISTDataFunction
   public:
     MNISTSamplePatchesDataFunction(const int& numPatches, const int& patchWidth);
     ~MNISTSamplePatchesDataFunction();
-    void configurePolicy(const Eigen::MatrixXd& tmpX, Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& tmpY, Eigen::MatrixXd& Y);
+    void configurePolicy(const Matrix_t& tmpX, Matrix_t& X, const Matrix_t& tmpY, Matrix_t& Y);
 };
 

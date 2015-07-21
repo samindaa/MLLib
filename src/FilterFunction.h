@@ -13,12 +13,12 @@
 class FilterFunction: public EigenFunction
 {
   protected:
-    Eigen::MatrixXd Weights;
-    Eigen::VectorXd biases;
+    Matrix_t Weights;
+    Vector_t biases;
     Eigen::Vector2i config;
 
-    Eigen::MatrixXd WeightsGrad;
-    Eigen::VectorXd biasesGrad;
+    Matrix_t WeightsGrad;
+    Vector_t biasesGrad;
 
   public:
     virtual ~FilterFunction()
@@ -27,22 +27,22 @@ class FilterFunction: public EigenFunction
 
     virtual void configure() =0;
 
-    Eigen::MatrixXd& getWeights()
+    Matrix_t& getWeights()
     {
       return Weights;
     }
 
-    Eigen::VectorXd& getBiases()
+    Vector_t& getBiases()
     {
       return biases;
     }
 
-    Eigen::MatrixXd& getWeightsGrad()
+    Matrix_t& getWeightsGrad()
     {
       return WeightsGrad;
     }
 
-    Eigen::VectorXd& getBiasesGrad()
+    Vector_t& getBiasesGrad()
     {
       return biasesGrad;
     }

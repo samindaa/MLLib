@@ -14,14 +14,15 @@
 class LIBLBFGSOptimizer: public Optimizer
 {
   protected:
+    int max_iterations;
     lbfgsfloatval_t* parameters;
     DataFunction* dataFunction;
     CostFunction* costFunction;
 
   public:
-    LIBLBFGSOptimizer();
+    LIBLBFGSOptimizer(const int& max_iterations = 100);
     ~LIBLBFGSOptimizer();
-    void optimize(Eigen::VectorXd& theta, DataFunction* dataFunction, CostFunction* costFunction);
+    void optimize(Vector_t& theta, DataFunction* dataFunction, CostFunction* costFunction);
 
   private:
     lbfgsfloatval_t evaluate(const lbfgsfloatval_t *x, lbfgsfloatval_t *g, const int n,

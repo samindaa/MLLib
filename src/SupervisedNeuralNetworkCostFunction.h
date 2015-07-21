@@ -16,28 +16,25 @@
 class SupervisedNeuralNetworkCostFunction: public CostFunction
 {
   private:
-    Eigen::VectorXd topology;
+    Vector_t topology;
     std::vector<SupervisedNeuralNetworkLayer*> layers;
     int numberOfParameters;
     double LAMBDA;
 
   public:
-    SupervisedNeuralNetworkCostFunction(const Eigen::VectorXd& topology,
-        const double& LAMBDA = 0.0f);
+    SupervisedNeuralNetworkCostFunction(const Vector_t& topology, const double& LAMBDA = 0.0f);
     ~SupervisedNeuralNetworkCostFunction();
 
-    Eigen::VectorXd configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
-    double evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y, Eigen::VectorXd& grad);
+    Vector_t configure(const Matrix_t& X, const Matrix_t& Y);
+    double evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y, Vector_t& grad);
 
-    double accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-        const Eigen::MatrixXd& Y);
+    double accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y);
 
   private:
-    void toTheta(Eigen::VectorXd& grad);
-    void toGradient(Eigen::VectorXd& grad);
-    void toWeights(const Eigen::VectorXd& theta);
-    void forwardPass(const Eigen::MatrixXd& X);
+    void toTheta(Vector_t& grad);
+    void toGradient(Vector_t& grad);
+    void toWeights(const Vector_t& theta);
+    void forwardPass(const Matrix_t& X);
 };
 
 #endif /* SUPERVISEDNEURALNETWORKCOSTFUNCTION_H_ */

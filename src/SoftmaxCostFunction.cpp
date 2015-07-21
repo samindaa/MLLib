@@ -19,33 +19,31 @@ SoftmaxCostFunction::~SoftmaxCostFunction()
   delete softmax;
 }
 
-Eigen::VectorXd SoftmaxCostFunction::configure(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y)
+Vector_t SoftmaxCostFunction::configure(const Matrix_t& X, const Matrix_t& Y)
 {
   const int numberOfParameters = X.cols() * Y.cols();
   std::cout << "numberOfParameters: " << numberOfParameters << std::endl;
-  Eigen::VectorXd theta = (Eigen::VectorXd::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f
-      * 0.001f;
+  Vector_t theta = (Vector_t::Random(numberOfParameters, 1).array() + 1.0f) * 0.5f * 0.001f;
   return theta;
 }
 
-double SoftmaxCostFunction::evaluate(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y, Eigen::VectorXd& grad)
+double SoftmaxCostFunction::evaluate(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y,
+    Vector_t& grad)
 {
-  Eigen::MatrixXd Mat = //
-      softmax->getFunc(X * Eigen::Map<const Eigen::MatrixXd>(theta.data(), X.cols(), Y.cols()));
-  Eigen::MatrixXd Grad = -(X.transpose() * (Y - Mat));
-  grad = Eigen::Map<Eigen::VectorXd>(Grad.data(), Grad.cols() * Grad.rows()) + (theta * LAMBDA);
+  Matrix_t Mat = //
+      softmax->getFunc(X * Eigen::Map<const Matrix_t>(theta.data(), X.cols(), Y.cols()));
+  Matrix_t Grad = -(X.transpose() * (Y - Mat));
+  grad = Eigen::Map<Vector_t>(Grad.data(), Grad.cols() * Grad.rows()) + (theta * LAMBDA);
   return -((Y.array() * Mat.array().log()).sum()) + (theta.array().square().sum()) * LAMBDA * 0.5f;
 }
 
-double SoftmaxCostFunction::accuracy(const Eigen::VectorXd& theta, const Eigen::MatrixXd& X,
-    const Eigen::MatrixXd& Y)
+double SoftmaxCostFunction::accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y)
 {
 
   //std::ofstream ofs("m_test.txt");
   //ofs << X.topRows<10>() << std::endl;
 
-  Eigen::MatrixXd Mat = X * Eigen::Map<const Eigen::MatrixXd>(theta.data(), X.cols(), Y.cols());
+  Matrix_t Mat = X * Eigen::Map<const Matrix_t>(theta.data(), X.cols(), Y.cols());
   Eigen::MatrixXf::Index maxIndex;
   int correct = 0;
   int incorrect = 0;

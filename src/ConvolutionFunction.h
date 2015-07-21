@@ -23,8 +23,8 @@ class ConvolutionFunction: public EigenFunction
   public:
     ConvolutionFunction(FilterFunction* filterFunction, ActivationFunction* activationFunction);
     ~ConvolutionFunction();
-    Convolutions* conv(const Eigen::MatrixXd& X, const Eigen::Vector2i& cofig);
-    void validConv(Eigen::MatrixXd& Conv, const Eigen::MatrixXd& I, const Eigen::MatrixXd& W,
+    Convolutions* conv(const Matrix_t& X, const Eigen::Vector2i& cofig);
+    void validConv(Matrix_t& Conv, const Matrix_t& I, const Matrix_t& W,
         const double& b);
     void clear();
 };
