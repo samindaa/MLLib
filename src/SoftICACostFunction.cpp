@@ -60,12 +60,12 @@ double SoftICACostFunction::evaluate(const Vector_t& theta, const Matrix_t& Xin,
 
 double SoftICACostFunction::accuracy(const Vector_t& theta, const Matrix_t& X, const Matrix_t& Y)
 {
-  Vector_t theta_tmp = theta;
-  W = Eigen::Map<Matrix_t>(theta_tmp.data(), W.rows(), W.cols());
+  //Vector_t theta_tmp = theta;
+  //W = Eigen::Map<Matrix_t>(theta_tmp.data(), W.rows(), W.cols());
 
   // debug
-  std::ofstream ofs("../W.txt");
-  ofs << W << std::endl;
+  //std::ofstream ofs("../W.txt");
+  //ofs << W << std::endl;
   return 0.0f;
 }
 

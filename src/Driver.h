@@ -24,7 +24,7 @@ class Driver
     Driver(Config* config, DataFunction* dataFunction, CostFunction* costFunction,
         Optimizer* optimizer);
     ~Driver();
-    void drive();
+    const Vector_t drive();
 
 };
 

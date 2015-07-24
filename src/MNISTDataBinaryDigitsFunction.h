@@ -17,7 +17,6 @@ class MNISTDataBinaryDigitsFunction: public MNISTDataFunction
 
   public:
     MNISTDataBinaryDigitsFunction(const bool& targetOneOfKCoding = false);
-
     void configurePolicy(const Matrix_t& tmpX, Matrix_t& X, const Matrix_t& tmpY, Matrix_t& Y);
 };
 

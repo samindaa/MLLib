@@ -55,7 +55,7 @@ void IEEEHumanDataFunction::configure(Config* config)
     for (size_t i = 0; i < targets.size(); ++i)
       metas.push_back(std::vector<Meta>());
 
-    trainingSamplesVector.push_back(20);
+    trainingSamplesVector.push_back(21);
     trainingSamplesVector.push_back(30);
   }
   else if (mode == "__L2_true__")
@@ -100,10 +100,10 @@ void IEEEHumanDataFunction::configure(Config* config)
       metas.push_back(std::vector<Meta>());
 
     for (size_t i = 0; i < targets.size(); ++i)
-      trainingSamplesVector.push_back(12);
+      trainingSamplesVector.push_back(15);
 
   }
-  else if (mode == "__LX__")
+  else if (mode == "__L3__")
   {
     std::vector<std::string> target1 { true1 };
     std::vector<std::string> target2 { true2 };
@@ -223,7 +223,8 @@ void IEEEHumanDataFunction::configure(Config* config)
 
   trainingMeanAndStdd();
   datasetsMeanNormalize();
-  datasetsSetBias();
+  if (config->getValue("IEEEHumanDataFunction.datasetsSetBias", true))
+    datasetsSetBias();
 }
 
 void IEEEHumanDataFunction::read(const std::vector<std::string>& filevector,

@@ -6,6 +6,7 @@
  */
 
 #include "SupervisedNeuralNetworkCostFunction.h"
+#include "MatrixToLatex.h"
 #include <iostream>
 
 SupervisedNeuralNetworkCostFunction::SupervisedNeuralNetworkCostFunction(const Vector_t& topology,
@@ -167,22 +168,33 @@ double SupervisedNeuralNetworkCostFunction::accuracy(const Vector_t& theta, cons
   Eigen::MatrixXf::Index maxIndex;
   int correct = 0;
   int incorrect = 0;
-  //omp_set_num_threads(NUMBER_OF_OPM_THREADS);
+  //Matrix_t ConfusionMatrix = Matrix_t::Zero(Y.cols(), Y.cols());
 #pragma omp parallel for private(maxIndex) reduction(+:correct) reduction(+:incorrect)
   for (int i = 0; i < X.rows(); ++i)
   {
     layers[layers.size() - 1]->Z.row(i).maxCoeff(&maxIndex);
     if (Y(i, maxIndex) == 1)
+    {
       ++correct;
+      //ConfusionMatrix(maxIndex, maxIndex) += 1;
+    }
     else
     {
       ++incorrect;
-      std::cout << i << std::endl;
-      std::cout << "pred: " << layers[layers.size() - 1]->Z.row(i) << std::endl;
-      std::cout << "true: " << Y.row(i) << std::endl;
+      //std::cout << i << std::endl;
+      //std::cout << "pred: " << layers[layers.size() - 1]->Z.row(i) << std::endl;
+      //std::cout << "true: " << Y.row(i) << std::endl;
+      //std::cout << "pred_idx: " << maxIndex << " ";
+      //Eigen::MatrixXf::Index maxTrueIndex;
+      //Y.row(i).maxCoeff(&maxTrueIndex);
+      //std::cout << "true_idx: " << maxIndex << std::endl;
+      //ConfusionMatrix(maxTrueIndex, maxIndex) += 1;
     }
   }
   std::cout << "incorrect: " << incorrect << " outof: " << X.rows() << std::endl;
+
+  //MatrixToLatex::toLatex(ConfusionMatrix);
+
   return double(correct) * 100.0f / X.rows();
 
 }

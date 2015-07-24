@@ -36,6 +36,8 @@ class LIBLBFGSOptimizer: public Optimizer
     static int _progress(void *instance, const lbfgsfloatval_t *x, const lbfgsfloatval_t *g,
         const lbfgsfloatval_t fx, const lbfgsfloatval_t xnorm, const lbfgsfloatval_t gnorm,
         const lbfgsfloatval_t step, int n, int k, int ls);
+
+     std::string toVerbose(const int& ret);
 };
 
 #endif /* LIBLBFGSOPTIMIZER_H_ */

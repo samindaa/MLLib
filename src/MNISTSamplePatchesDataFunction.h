@@ -5,6 +5,9 @@
  *      Author: sam
  */
 
+#ifndef MNISTSAMPLEPATCHESDATAFUNCTION_H_
+#define MNISTSAMPLEPATCHESDATAFUNCTION_H_
+
 #include "MNISTDataFunction.h"
 #include "WhiteningFunction.h"
 
@@ -21,4 +24,6 @@ class MNISTSamplePatchesDataFunction: public MNISTDataFunction
     ~MNISTSamplePatchesDataFunction();
     void configurePolicy(const Matrix_t& tmpX, Matrix_t& X, const Matrix_t& tmpY, Matrix_t& Y);
 };
+
+#endif /* MNISTSAMPLEPATCHESDATAFUNCTION_H_ */
 

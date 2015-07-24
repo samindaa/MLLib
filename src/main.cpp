@@ -12,6 +12,8 @@
 #include <random>
 #include <functional>
 #include <thread>
+#include <algorithm>
+#include <iterator>
 //
 #include "Driver.h"
 #include "HousingDataFunction.h"
@@ -32,7 +34,10 @@
 #include "SoftICACostFunction.h"
 #include "NaturalImageDataFunction.h"
 #include "StopWatch.h"
-//
+#include "MNISTSamplePatchesUnlabeledDataFunction.h"
+#include "MNISTSamplePatchesLabeledDataFunction.h"
+#include "StlFilterFunction.h"
+#include "IdentityFunction.h"
 #include "IEEEHumanDataFunction.h"
 
 void updateMNISTConfig(Config& config)
@@ -96,6 +101,8 @@ void testSoftmaxCostFunctionDriver()
 {
   MNISTDataBinaryDigitsFunction mnistdf(true);
   Config config;
+  config.setValue("training_accuracy", true);
+  config.setValue("testing_accuracy", true);
   updateMNISTConfig(config);
   SoftmaxCostFunction mnistcf(1.0f);
   LIBLBFGSOptimizer lbfgs;
@@ -117,6 +124,8 @@ void testMNISTBinaryDigitsSupervisedNeuralNetworkCostFunctionDriver()
   Config config;
   updateMNISTConfig(config);
   config.setValue("addBiasTerm", false);
+  config.setValue("training_accuracy", true);
+  config.setValue("testing_accuracy", true);
 
   LIBLBFGSOptimizer lbfgs;
   Driver drv(&config, &mnistdf, &mnistcf, &lbfgs);
@@ -191,8 +200,21 @@ void testMNISTSupervisedNeuralNetworkDriver()
 void testIEEEHumanDataFunction()
 {
   Config config;
-  const int h = 2;
-  switch (h)
+
+  const bool isSoftmax = false;
+
+  enum Exp
+  {
+    __L1__, __L2_true__, __L2_negg__, __L3__
+  };
+
+  const Exp exp = __L2_negg__;
+
+  config.setValue("IEEEHumanDataFunction.datasetsSetBias", isSoftmax);
+  config.setValue("training_accuracy", true);
+  config.setValue("testing_accuracy", true);
+
+  switch (exp)
   {
     case 0:
       config.setValue("exp", std::string("__L1__"));
@@ -202,20 +224,22 @@ void testIEEEHumanDataFunction()
       break;
     case 2:
       config.setValue("exp", std::string("__L2_negg__"));
+      break;
+    case 3:
+      config.setValue("exp", std::string("__L3__"));
   }
 
   IEEEHumanDataFunction ieeeHumanData;
 
   CostFunction* cf = nullptr;
 
-  const bool isSoftmax = false;
   if (isSoftmax)
-    cf = new SoftmaxCostFunction(0.01f);
+    cf = new SoftmaxCostFunction(0.1f);
   else
   {
     Vector_t topology(1);
-    topology << 5;
-    cf = new SupervisedNeuralNetworkCostFunction(topology, 0.01f);
+    topology << 6; // 5
+    cf = new SupervisedNeuralNetworkCostFunction(topology, 0.1f);
   }
 
   LIBLBFGSOptimizer lbfgs;
@@ -607,6 +631,98 @@ void testSoftICADriver()
 
 }
 
+void testStlDriver()
+{
+  const int numPatches = 200000; // 200000
+  const int patchWidth = 9;
+
+  const int numFeatures = 50;
+  const double lambda = 0.0005f;
+  const double epsilon = 1e-2;
+  Config config;
+  config.setValue("addBiasTerm", false);
+  config.setValue("meanStddNormalize", false);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("trainingMeanAndStdd", false);
+  updateMNISTConfig(config);
+
+  if (false)
+  {
+    MNISTSamplePatchesUnlabeledDataFunction mnistUnlabeled(numPatches, patchWidth);
+    SoftICACostFunction sfc(numFeatures, lambda, epsilon);
+
+    LIBLBFGSOptimizer lbfgs(200); // 1000
+    Driver drv1(&config, &mnistUnlabeled, &sfc, &lbfgs);
+    const Vector_t optThetaRica = drv1.drive();
+
+    Matrix_t Wrica(
+        Eigen::Map<const Matrix_t>(optThetaRica.data(), numFeatures, pow(patchWidth, 2)));
+
+    std::ofstream ofs_wrica("../W2.txt");
+    ofs_wrica << Wrica << std::endl;
+  }
+
+  Matrix_t Wrica;
+  // debug: read off the values
+  std::ifstream in("/home/sam/School/online/stanford_dl_ex/W2.txt");
+  if (in.is_open())
+  {
+    std::string str;
+    int nbRows = 0;
+    while (std::getline(in, str))
+    {
+      if (str.size() == 0)
+        continue;
+      std::istringstream iss(str);
+      std::vector<double> tokens //
+      { std::istream_iterator<double> { iss }, std::istream_iterator<double> { } };
+      Wrica.conservativeResize(nbRows + 1, tokens.size());
+      for (size_t i = 0; i < tokens.size(); ++i)
+        Wrica(nbRows, i) = tokens[i];
+      ++nbRows;
+    }
+  }
+  else
+  {
+    std::cerr << "file W.txt failed" << std::endl;
+    exit(EXIT_FAILURE);
+  }
+
+  const int imageDim = 28;
+  Eigen::Vector2i imageConfig;
+  imageConfig << imageDim, imageDim;
+
+  const int numFilters = numFeatures;
+  const int poolDim = 5;
+  const int filterDim = patchWidth;
+  const int convDim = (imageDim - filterDim + 1);
+  assert(convDim % poolDim == 0);
+  const int outputDim = (convDim / poolDim);
+
+  StlFilterFunction stlFilterFunction(filterDim, Wrica);
+  SigmoidFunction sigmoidFunction;
+  ConvolutionFunction convolutionFunction(&stlFilterFunction, &sigmoidFunction);
+  MeanPoolFunction meanPoolFunction(numFilters, outputDim);
+
+  MNISTSamplePatchesLabeledDataFunction mnistLabeled(&convolutionFunction, &meanPoolFunction,
+      imageConfig, numFilters, poolDim, outputDim);
+
+  SoftmaxCostFunction mnistcf(0.01f);
+  LIBLBFGSOptimizer lbfgs2(300);
+  config.setValue("configurePolicyTesting", false);
+  config.setValue("trainingMeanAndStdd", true);
+  config.setValue("meanStddNormalize", true);
+  config.setValue("addBiasTerm", true);
+
+  config.setValue("numGrd", true);
+  config.setValue("training_accuracy", true);
+  config.setValue("testing_accuracy", true);
+  //config.setValue("addBiasTerm", false);
+  Driver drv2(&config, &mnistLabeled, &mnistcf, &lbfgs2);
+  drv2.drive();
+
+}
+
 void testNaturalImageDataFunction()
 {
 
@@ -665,19 +781,23 @@ void testEigenConstMap()
 void testMatrix_t()
 {
   Matrix_t test(2, 3);
+  test(0, 0) = 1.0f;
+  //Vector_t test2 = Vector_t::Random(5);
 
-  Vector_t test2 = Vector_t::Random(5);
+  //std::cout << test2 << std::endl;
 
-  std::cout << test2 << std::endl;
+  //Matrix_t Test2 = test2.replicate(1, 3);
 
-  Matrix_t Test2 = test2.replicate(1, 3);
-
-  std::cout << Test2 << std::endl;
+  //std::cout << Test2 << std::endl;
 }
 
 int main()
 {
   std::cout << "*** start ***" << std::endl;
+  //////
+  Eigen::initParallel();
+  /////
+
 //  testHousingDriver();
 //  testMNISTDataFunction();
 //  testMNISTBinaryDigitsDriver();
@@ -698,13 +818,14 @@ int main()
 //  testWhiteningFunction();
 //  testMNISTSamplePatchesDataFunction();
 //  testSoftICACostFunction();
-  testSoftICADriver();
+//  testSoftICADriver();
 //  testEigenVectorizedOperations();
 //  testNaturalImageDataFunction();
 //  testSoftICADriver2();
 //  testStopWatch();
 //  testEigenConstMap();
 //  testMatrix_t();
+  testStlDriver();
   std::cout << "*** end-- ***" << std::endl;
   return 0;
 }

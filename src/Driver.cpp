@@ -22,7 +22,7 @@ Driver::~Driver()
 {
 }
 
-void Driver::drive()
+const Vector_t Driver::drive()
 {
   dataFunction->configure(config);
   Vector_t theta = costFunction->configure(dataFunction->getTrainingX(),
@@ -38,9 +38,11 @@ void Driver::drive()
         << costFunction->accuracy(theta, dataFunction->getTrainingX(), dataFunction->getTrainingY())
         << std::endl;
 
-  std::cout << "testing_accuracy: "
-      << costFunction->accuracy(theta, dataFunction->getTestingX(), dataFunction->getTestingY())
-      << std::endl;
+  if (config->getValue("testing_accuracy", false))
+    std::cout << "testing_accuracy: "
+        << costFunction->accuracy(theta, dataFunction->getTestingX(), dataFunction->getTestingY())
+        << std::endl;
+  return theta;
 }
 
 #endif /* DRIVER_CPP_ */
