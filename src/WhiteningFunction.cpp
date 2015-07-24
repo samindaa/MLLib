@@ -39,16 +39,3 @@ Matrix_t WhiteningFunction::gen(const Matrix_t& X)
 
   return Xr;
 }
-
-void WhiteningFunction::zeroMean(Matrix_t& X)
-{
-}
-
-void WhiteningFunction::pcaWhitening(Matrix_t& X)
-{
-}
-
-void WhiteningFunction::zcaWhitening(Matrix_t& X)
-{
-}
-

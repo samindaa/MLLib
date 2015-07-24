@@ -21,12 +21,6 @@ class WhiteningFunction: public EigenFunction
     WhiteningFunction(Config* config);
     ~WhiteningFunction();
     Matrix_t gen(const Matrix_t& X);
-
-  private:
-    void zeroMean(Matrix_t& X);
-    void pcaWhitening(Matrix_t& X);
-    void zcaWhitening(Matrix_t& X);
-
 };
 
 #endif /* WHITENINGFUNCTION_H_ */
